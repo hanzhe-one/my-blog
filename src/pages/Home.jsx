@@ -8,7 +8,7 @@ export default function Home() {
     <div className="flex flex-col items-center gap-y-10">
       <section className="flex flex-col items-center gap-y-7">
         <img
-          src="https://api.dicebear.com/9.x/avataaars/svg?seed=default"
+          src="/avatar.jpg"
           alt="avatar"
           className="h-28 w-28 rounded-full border p-1"
         />
