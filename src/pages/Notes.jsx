@@ -40,7 +40,7 @@ function NoteDetail({ slug }) {
 
   return (
     <div className="flex w-full max-w-5xl gap-8">
-      <article className="min-w-0 flex-1 max-w-2xl mx-auto xl:mx-0">
+      <article className="min-w-0 flex-1 max-w-2xl mx-auto lg:mx-0">
         <Link to="/notes" className="text-sm text-[#659EB9] hover:underline">&larr; 回到笔记</Link>
         <h1 className="mt-4 mb-2 text-3xl font-bold">{note.title}</h1>
         <div className="mb-8 text-xs text-[var(--muted-fg)]">{formatDate(note.date)} · {readingTime(note.content)}</div>
