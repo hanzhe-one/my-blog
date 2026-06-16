@@ -49,7 +49,7 @@ export default function TableOfContents({ content }) {
   if (headings.length < 2) return null;
 
   return (
-    <nav className="sticky top-24 w-56 shrink-0 self-start hidden xl:block">
+    <nav className="sticky top-24 w-56 shrink-0 self-start hidden lg:block">
       <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-[var(--muted-fg)]">
         Table of Contents
       </h2>
