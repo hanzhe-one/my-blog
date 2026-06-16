@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "npm run build:fonts && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "build:fonts": "python scripts/subset-fonts.py"
