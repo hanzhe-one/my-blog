@@ -31,16 +31,32 @@ export const headingComponents = {
 
 export function extractHeadings(content) {
   const regex = /^(#{2,4})\s+(.+)$/gm;
-  const results = [];
+  const flat = [];
   let match;
   while ((match = regex.exec(content)) !== null) {
-    results.push({
+    flat.push({
       level: match[1].length,
       text: match[2].trim(),
       id: slugify(match[2].trim()),
     });
   }
-  return results;
+  return buildTocTree(flat);
+}
+
+function buildTocTree(flat) {
+  const root = { level: 0, children: [] };
+  const stack = [root];
+
+  for (const h of flat) {
+    const node = { ...h, children: [] };
+    while (stack.length > 1 && stack[stack.length - 1].level >= h.level) {
+      stack.pop();
+    }
+    stack[stack.length - 1].children.push(node);
+    stack.push(node);
+  }
+
+  return root.children;
 }
 
 export { slugify };

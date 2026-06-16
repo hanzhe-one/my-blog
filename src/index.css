@@ -67,3 +67,88 @@ a {
 .prose, .prose * {
   font-family: var(--font-satoshi);
 }
+
+.toc-nav {
+  width: 224px;
+  flex-shrink: 0;
+  align-self: flex-start;
+  position: sticky;
+  top: 6rem;
+  display: none;
+  background: #faf9f6;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+@media (min-width: 1024px) {
+  .toc-nav { display: block; }
+}
+
+.toc-tl-header {
+  font-size: 12px;
+  color: #999;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.toc-tl-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.toc-tl-children {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.toc-tl-item {
+  position: relative;
+  padding-left: 24px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+.toc-tl-item a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+.toc-tl-item a:hover {
+  background: #f0f0ee;
+}
+
+.toc-tl-dot {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 6px;
+  background: #ccc;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.toc-tl-label {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #595959;
+  transition: color 0.15s;
+}
+
+.toc-tl-item.active .toc-tl-dot {
+  background: #f56c6c;
+}
+
+.toc-tl-item.active .toc-tl-label {
+  color: #333;
+  font-weight: 600;
+}
