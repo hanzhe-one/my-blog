@@ -15,6 +15,7 @@ export default function BlogPost() {
 
   return (
     <div className="flex w-full max-w-5xl gap-8">
+      <TableOfContents content={post.content} />
       <article className="min-w-0 flex-1 max-w-2xl mx-auto lg:mx-0">
         <Link to="/blog" className="text-sm text-[#659EB9] hover:underline">&larr; 回到博客</Link>
         <h1 className="mt-4 mb-2 text-3xl font-bold">{post.title}</h1>
@@ -28,7 +29,6 @@ export default function BlogPost() {
           <Markdown remarkPlugins={[remarkGfm]} components={headingComponents}>{post.content}</Markdown>
         </div>
       </article>
-      <TableOfContents content={post.content} />
     </div>
   );
 }
