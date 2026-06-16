@@ -29,4 +29,18 @@ export const headingComponents = {
   h3: heading('h3'),
 };
 
+export function extractHeadings(content) {
+  const regex = /^(#{2,4})\s+(.+)$/gm;
+  const results = [];
+  let match;
+  while ((match = regex.exec(content)) !== null) {
+    results.push({
+      level: match[1].length,
+      text: match[2].trim(),
+      id: slugify(match[2].trim()),
+    });
+  }
+  return results;
+}
+
 export { slugify };
