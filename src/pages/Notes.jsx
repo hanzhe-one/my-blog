@@ -1,6 +1,8 @@
 import { Link, useParams } from 'react-router-dom';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import rehypeSlug from 'rehype-slug';
+import TableOfContents from '../components/TableOfContents';
 import { getNoteBySlug, getAllNotes, formatDate, readingTime } from '../content/loader';
 
 export default function Notes() {
@@ -20,7 +22,7 @@ export default function Notes() {
             className="group rounded-lg border border-[var(--border)] p-5 transition-shadow hover:shadow-md"
           >
             <h2 className="text-lg font-semibold group-hover:text-[#659EB9]">{note.title}</h2>
-            <p className="mt-2 text-sm">{note.content.replace(/[#*`\[\]]/g, '').slice(0, 80)}...</p>
+            <p className="mt-2 text-sm">{note.content.replace(/[#*`[\]]/g, '').slice(0, 80)}...</p>
             <span className="mt-3 block text-xs text-[var(--muted-fg)]">{formatDate(note.date)} · {readingTime(note.content)}</span>
           </Link>
         ))}
@@ -37,13 +39,16 @@ function NoteDetail({ slug }) {
   }
 
   return (
-    <article className="mx-auto w-full max-w-2xl">
-      <Link to="/notes" className="text-sm text-[#659EB9] hover:underline">&larr; 回到笔记</Link>
-      <h1 className="mt-4 mb-2 text-3xl font-bold">{note.title}</h1>
-      <div className="mb-8 text-xs text-[var(--muted-fg)]">{formatDate(note.date)} · {readingTime(note.content)}</div>
-      <div className="max-w-none leading-relaxed prose prose-sm">
-        <Markdown remarkPlugins={[remarkGfm]}>{note.content}</Markdown>
-      </div>
-    </article>
+    <div className="flex w-full max-w-5xl gap-8">
+      <article className="min-w-0 flex-1 max-w-2xl mx-auto xl:mx-0">
+        <Link to="/notes" className="text-sm text-[#659EB9] hover:underline">&larr; 回到笔记</Link>
+        <h1 className="mt-4 mb-2 text-3xl font-bold">{note.title}</h1>
+        <div className="mb-8 text-xs text-[var(--muted-fg)]">{formatDate(note.date)} · {readingTime(note.content)}</div>
+        <div className="max-w-none leading-relaxed prose prose-sm">
+          <Markdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeSlug]}>{note.content}</Markdown>
+        </div>
+      </article>
+      <TableOfContents content={note.content} />
+    </div>
   );
 }

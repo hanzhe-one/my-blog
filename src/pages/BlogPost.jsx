@@ -1,6 +1,8 @@
 import { Link, useParams } from 'react-router-dom';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import rehypeSlug from 'rehype-slug';
+import TableOfContents from '../components/TableOfContents';
 import { getPostBySlug, getAllPosts, formatDate, readingTime } from '../content/loader';
 
 export default function BlogPost() {
@@ -12,19 +14,22 @@ export default function BlogPost() {
   }
 
   return (
-    <article className="w-full max-w-2xl mx-auto">
-      <Link to="/blog" className="text-sm text-[#659EB9] hover:underline">&larr; 回到博客</Link>
-      <h1 className="mt-4 mb-2 text-3xl font-bold">{post.title}</h1>
-      <div className="mb-8 flex flex-wrap items-center gap-2 text-xs text-[var(--muted-fg)]">
-        <span>{formatDate(post.date)} · {readingTime(post.content)}</span>
-        {post.tags?.map((tag) => (
-          <span key={tag} className="rounded-md bg-[var(--muted)] px-2 py-1">{tag}</span>
-        ))}
-      </div>
-      <div className="prose prose-sm max-w-none leading-relaxed">
-        <Markdown remarkPlugins={[remarkGfm]}>{post.content}</Markdown>
-      </div>
-    </article>
+    <div className="flex w-full max-w-5xl gap-8">
+      <article className="min-w-0 flex-1 max-w-2xl mx-auto xl:mx-0">
+        <Link to="/blog" className="text-sm text-[#659EB9] hover:underline">&larr; 回到博客</Link>
+        <h1 className="mt-4 mb-2 text-3xl font-bold">{post.title}</h1>
+        <div className="mb-8 flex flex-wrap items-center gap-2 text-xs text-[var(--muted-fg)]">
+          <span>{formatDate(post.date)} · {readingTime(post.content)}</span>
+          {post.tags?.map((tag) => (
+            <span key={tag} className="rounded-md bg-[var(--muted)] px-2 py-1">{tag}</span>
+          ))}
+        </div>
+        <div className="prose prose-sm max-w-none leading-relaxed">
+          <Markdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeSlug]}>{post.content}</Markdown>
+        </div>
+      </article>
+      <TableOfContents content={post.content} />
+    </div>
   );
 }
 
@@ -43,7 +48,7 @@ export function BlogListPreview() {
             <Link to={`/blog/${post.slug}`} className="flex items-start justify-between gap-4">
               <div className="flex-1">
                 <h3 className="text-lg font-semibold group-hover:text-[#659EB9]">{post.title}</h3>
-                <p className="mt-1 text-sm">{post.content.replace(/[#*`\[\]]/g, '').slice(0, 100)}...</p>
+                <p className="mt-1 text-sm">{post.content.replace(/[#*`[\]]/g, '').slice(0, 100)}...</p>
                 <div className="mt-2 flex gap-2 text-xs">
                   {post.tags?.map((tag) => (
                     <span key={tag} className="rounded-md bg-[var(--muted)] px-2 py-1">{tag}</span>
