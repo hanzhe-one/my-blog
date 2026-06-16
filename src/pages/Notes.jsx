@@ -1,7 +1,7 @@
 import { Link, useParams } from 'react-router-dom';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { getNoteBySlug, getAllNotes } from '../content/loader';
+import { getNoteBySlug, getAllNotes, formatDate, readingTime } from '../content/loader';
 
 export default function Notes() {
   const { slug } = useParams();
@@ -21,7 +21,7 @@ export default function Notes() {
           >
             <h2 className="text-lg font-semibold group-hover:text-[#659EB9]">{note.title}</h2>
             <p className="mt-2 text-sm">{note.content.replace(/[#*`\[\]]/g, '').slice(0, 80)}...</p>
-            <span className="mt-3 block text-xs text-[var(--muted-fg)]">{note.date}</span>
+            <span className="mt-3 block text-xs text-[var(--muted-fg)]">{formatDate(note.date)} · {readingTime(note.content)}</span>
           </Link>
         ))}
       </div>
@@ -40,7 +40,7 @@ function NoteDetail({ slug }) {
     <article className="mx-auto w-full max-w-2xl">
       <Link to="/notes" className="text-sm text-[#659EB9] hover:underline">&larr; 回到笔记</Link>
       <h1 className="mt-4 mb-2 text-3xl font-bold">{note.title}</h1>
-      <div className="mb-8 text-xs text-[var(--muted-fg)]">{note.date}</div>
+      <div className="mb-8 text-xs text-[var(--muted-fg)]">{formatDate(note.date)} · {readingTime(note.content)}</div>
       <div className="max-w-none leading-relaxed prose prose-sm">
         <Markdown remarkPlugins={[remarkGfm]}>{note.content}</Markdown>
       </div>

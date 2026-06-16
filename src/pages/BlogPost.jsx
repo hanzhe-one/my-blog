@@ -1,7 +1,7 @@
 import { Link, useParams } from 'react-router-dom';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { getPostBySlug, getAllPosts } from '../content/loader';
+import { getPostBySlug, getAllPosts, formatDate, readingTime } from '../content/loader';
 
 export default function BlogPost() {
   const { slug } = useParams();
@@ -15,8 +15,8 @@ export default function BlogPost() {
     <article className="w-full max-w-2xl mx-auto">
       <Link to="/blog" className="text-sm text-[#659EB9] hover:underline">&larr; 回到博客</Link>
       <h1 className="mt-4 mb-2 text-3xl font-bold">{post.title}</h1>
-      <div className="mb-8 flex flex-wrap gap-2 text-xs text-[var(--muted-fg)]">
-        <span>{post.date}</span>
+      <div className="mb-8 flex flex-wrap items-center gap-2 text-xs text-[var(--muted-fg)]">
+        <span>{formatDate(post.date)} · {readingTime(post.content)}</span>
         {post.tags?.map((tag) => (
           <span key={tag} className="rounded-md bg-[var(--muted)] px-2 py-1">{tag}</span>
         ))}
@@ -48,7 +48,7 @@ export function BlogListPreview() {
                   {post.tags?.map((tag) => (
                     <span key={tag} className="rounded-md bg-[var(--muted)] px-2 py-1">{tag}</span>
                   ))}
-                  <span className="text-[var(--muted-fg)]">{post.date}</span>
+                  <span className="text-[var(--muted-fg)]">{formatDate(post.date)} · {readingTime(post.content)}</span>
                 </div>
               </div>
             </Link>

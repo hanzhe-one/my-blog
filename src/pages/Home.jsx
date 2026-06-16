@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { getAllPosts } from '../content/loader';
+import { getAllPosts, formatDate, readingTime } from '../content/loader';
 
 const previewPosts = getAllPosts().slice(0, 3);
 
@@ -64,7 +64,7 @@ export default function Home() {
                   {post.tags?.map((tag) => (
                     <span key={tag} className="rounded-md bg-[var(--muted)] px-2 py-1">{tag}</span>
                   ))}
-                  <span className="text-[var(--muted-fg)]">{post.date}</span>
+                  <span className="text-[var(--muted-fg)]">{formatDate(post.date)} · {readingTime(post.content)}</span>
                 </div>
               </Link>
             </article>
