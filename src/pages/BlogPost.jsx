@@ -1,8 +1,8 @@
 import { Link, useParams } from 'react-router-dom';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import rehypeSlug from 'rehype-slug';
 import TableOfContents from '../components/TableOfContents';
+import { headingComponents } from '../components/headingComponents';
 import { getPostBySlug, getAllPosts, formatDate, readingTime } from '../content/loader';
 
 export default function BlogPost() {
@@ -25,7 +25,7 @@ export default function BlogPost() {
           ))}
         </div>
         <div className="prose prose-sm max-w-none leading-relaxed">
-          <Markdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeSlug]}>{post.content}</Markdown>
+          <Markdown remarkPlugins={[remarkGfm]} components={headingComponents}>{post.content}</Markdown>
         </div>
       </article>
       <TableOfContents content={post.content} />
