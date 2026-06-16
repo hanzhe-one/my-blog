@@ -1,8 +1,8 @@
 import { Link, useParams } from 'react-router-dom';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import rehypeSlug from 'rehype-slug';
 import TableOfContents from '../components/TableOfContents';
+import { headingComponents } from '../components/headingComponents';
 import { getNoteBySlug, getAllNotes, formatDate, readingTime } from '../content/loader';
 
 export default function Notes() {
@@ -45,7 +45,7 @@ function NoteDetail({ slug }) {
         <h1 className="mt-4 mb-2 text-3xl font-bold">{note.title}</h1>
         <div className="mb-8 text-xs text-[var(--muted-fg)]">{formatDate(note.date)} · {readingTime(note.content)}</div>
         <div className="max-w-none leading-relaxed prose prose-sm">
-          <Markdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeSlug]}>{note.content}</Markdown>
+          <Markdown remarkPlugins={[remarkGfm]} components={headingComponents}>{note.content}</Markdown>
         </div>
       </article>
       <TableOfContents content={note.content} />

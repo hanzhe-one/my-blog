@@ -1,11 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-
-function slugify(text) {
-  return text
-    .toLowerCase()
-    .replace(/[^\w\u4e00-\u9fff]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-}
+import { slugify } from './headingComponents';
 
 export default function TableOfContents({ content }) {
   const headings = useMemo(() => {
@@ -32,18 +26,25 @@ export default function TableOfContents({ content }) {
         for (const entry of entries) {
           if (entry.isIntersecting) {
             setActiveId(entry.target.id);
+            break;
           }
         }
       },
       { rootMargin: '-80px 0px -65% 0px' }
     );
 
+    const elements = [];
     for (const { id } of headings) {
       const el = document.getElementById(id);
-      if (el) observer.observe(el);
+      if (el) {
+        observer.observe(el);
+        elements.push(el);
+      }
     }
 
-    return () => observer.disconnect();
+    return () => {
+      for (const el of elements) observer.unobserve(el);
+    };
   }, [headings]);
 
   if (headings.length < 2) return null;
