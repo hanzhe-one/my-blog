@@ -1,8 +1,8 @@
 import { Link, useParams } from 'react-router-dom';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import TableOfContents from '../components/TableOfContents';
-import { headingComponents } from '../components/headingComponents';
+import TocNav from '../components/TocNav';
+import { headingComponents, extractHeadings } from '../components/headingComponents';
 import { getPostBySlug, getAllPosts, formatDate, readingTime } from '../content/loader';
 
 export default function BlogPost() {
@@ -13,9 +13,11 @@ export default function BlogPost() {
     return <div className="w-full"><h1 className="text-3xl font-bold">文章不存在</h1></div>;
   }
 
+  const headings = extractHeadings(post.content);
+
   return (
     <div className="flex w-full max-w-5xl gap-8">
-      <TableOfContents content={post.content} />
+      <TocNav headings={headings} />
       <article className="min-w-0 flex-1 max-w-2xl mx-auto lg:mx-0">
         <Link to="/blog" className="text-sm text-[#659EB9] hover:underline">&larr; 回到博客</Link>
         <h1 className="mt-4 mb-2 text-3xl font-bold">{post.title}</h1>
