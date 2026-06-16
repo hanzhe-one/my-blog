@@ -1,10 +1,55 @@
 import { useEffect, useState } from 'react';
 
+function TocItem({ item, activeId, onItemClick }) {
+  const isActive = activeId === item.id;
+  const hasChildren = item.children && item.children.length > 0;
+
+  return (
+    <li className={`toc-tl-item ${isActive ? 'active' : ''} ${hasChildren ? 'expanded' : ''}`}>
+      <a
+        href={`#${item.id}`}
+        onClick={(e) => {
+          e.preventDefault();
+          onItemClick(item.id);
+        }}
+      >
+        <span className="toc-tl-dot" />
+        <span className="toc-tl-label">{item.text}</span>
+      </a>
+      {hasChildren && (
+        <ul className="toc-tl-children">
+          {item.children.map((child) => (
+            <TocItem key={child.id} item={child} activeId={activeId} onItemClick={onItemClick} />
+          ))}
+        </ul>
+      )}
+    </li>
+  );
+}
+
+function countAll(items) {
+  let n = 0;
+  for (const item of items) {
+    n++;
+    if (item.children) n += countAll(item.children);
+  }
+  return n;
+}
+
 export default function TocNav({ headings }) {
   const [activeId, setActiveId] = useState('');
 
   useEffect(() => {
     if (!headings || headings.length === 0) return;
+
+    const ids = [];
+    function collectIds(items) {
+      for (const item of items) {
+        ids.push(item.id);
+        if (item.children) collectIds(item.children);
+      }
+    }
+    collectIds(headings);
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -19,7 +64,7 @@ export default function TocNav({ headings }) {
     );
 
     const els = [];
-    for (const { id } of headings) {
+    for (const id of ids) {
       const el = document.getElementById(id);
       if (el) {
         observer.observe(el);
@@ -32,70 +77,20 @@ export default function TocNav({ headings }) {
     };
   }, [headings]);
 
-  if (!headings || headings.length < 2) return null;
+  if (!headings || headings.length === 0 || countAll(headings) < 2) return null;
+
+  const scrollTo = (id) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   return (
-    <nav
-      className="w-56 shrink-0 self-start sticky top-24 hidden lg:block"
-      style={{ background: '#faf9f6', borderRadius: 8, padding: 16 }}
-    >
-      <div style={{ fontSize: 12, color: '#999', marginBottom: 8, fontWeight: 500 }}>
-        目录
-      </div>
-      {headings.map((h) => {
-        const isActive = activeId === h.id;
-        return (
-          <div
-            key={h.id}
-            onClick={() => {
-              document.getElementById(h.id)?.scrollIntoView({ behavior: 'smooth' });
-            }}
-            className="group"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              padding: '4px 0',
-              paddingLeft: (h.level - 2) * 24,
-              cursor: 'pointer',
-              borderRadius: 4,
-              transition: 'all 0.15s',
-            }}
-            onMouseEnter={(e) => {
-              if (!isActive) {
-                e.currentTarget.style.background = '#f0f0ee';
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!isActive) {
-                e.currentTarget.style.background = 'transparent';
-              }
-            }}
-          >
-            <span
-              style={{
-                width: 6,
-                height: 6,
-                borderRadius: '50%',
-                background: isActive ? '#f56c6c' : '#ccc',
-                flexShrink: 0,
-                transition: 'background 0.15s',
-              }}
-            />
-            <span
-              style={{
-                fontSize: 13,
-                lineHeight: 1.6,
-                fontWeight: isActive ? 600 : 400,
-                color: isActive ? '#333' : '#595959',
-                transition: 'color 0.15s',
-              }}
-            >
-              {h.text}
-            </span>
-          </div>
-        );
-      })}
+    <nav className="toc-nav">
+      <div className="toc-tl-header">目录</div>
+      <ul className="toc-tl-list">
+        {headings.map((item) => (
+          <TocItem key={item.id} item={item} activeId={activeId} onItemClick={scrollTo} />
+        ))}
+      </ul>
     </nav>
   );
 }
