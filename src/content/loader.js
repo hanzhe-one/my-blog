@@ -45,3 +45,19 @@ export function getPostBySlug(slug) {
 export function getNoteBySlug(slug) {
   return getAllNotes().find((n) => n.slug === slug);
 }
+
+export function formatDate(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+const CJK_RE = /[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff]/g;
+export function readingTime(text) {
+  const cleaned = text.replace(/^---[\s\S]*?---\n/, '').replace(/[#*`\[\]>\|]/g, '');
+  const cjkCount = (cleaned.match(CJK_RE) || []).length;
+  const wordCount = cleaned.replace(CJK_RE, ' ').split(/\s+/).filter(Boolean).length;
+  const total = cjkCount + wordCount;
+  const minutes = Math.max(1, Math.ceil(total / 250));
+  return `${minutes} min`;
+}
