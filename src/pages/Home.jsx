@@ -14,7 +14,7 @@ export default function Home() {
         />
 
         <div className="flex flex-col items-center gap-y-4">
-          <h1 className="text-3xl font-bold">xiaozhe</h1>
+          <h1 className="text-3xl font-bold">Xiaozhe's Blog</h1>
           <div className="flex flex-wrap justify-center gap-x-7 gap-y-3">
             <div className="flex items-center gap-2">
               <svg className="size-5" viewBox="0 0 24 24" fill="currentColor">
