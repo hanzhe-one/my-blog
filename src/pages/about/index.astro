@@ -1,0 +1,80 @@
+---
+import { Button, Collapse, Spoiler, Timeline } from 'astro-pure/user'
+import PageLayout from '@/layouts/CommonPage.astro'
+
+const headings = [
+  { depth: 2, slug: 'hobbies', text: 'Hobbies' },
+  { depth: 2, slug: 'skills', text: 'Skills' },
+  { depth: 2, slug: 'projects', text: 'Projects' },
+  { depth: 2, slug: 'gossips', text: 'Gossips' },
+  { depth: 2, slug: 'about-blog', text: 'About Blog' }
+]
+---
+
+<PageLayout title='About' {headings} comment>
+  <p>19岁计科女大</p>
+  <p>
+    我是**小喆**，一个出生于12月8日，今年19岁的计算机科学专业学生，目前就读于山东省某大学。
+    平时喜欢电吉他、滑板和 coding。
+  </p>
+  <p>
+    Motto: 在这里，每一行代码，每一次跌倒与爬起，都是小喆故事的一部分。
+  </p>
+  <Button title='Connect Me!' class='w-fit' href='/contact' variant='ahead' />
+
+  <h2 id='hobbies'>Hobbies</h2>
+  <ul>
+    <li>🎸 电吉他 - 正在练习 Corn Wave 的《Ugly》的间奏</li>
+    <li>🛹 滑板 - 正在学习 ollie 跳</li>
+    <li>📺 ACG - 喜欢《孤独摇滚！》、《古利特宇宙》、《赛博朋克：边缘行者》</li>
+    <li>💻 编程 - 热衷前端开发与开源</li>
+  </ul>
+
+  <h2 id='skills'>Skills</h2>
+  <ul>
+    <li><b>编程语言:</b> Python, Java, SQL, JavaScript, TypeScript</li>
+    <li><b>前端:</b> React, Three.js, HTML, CSS, Tailwind</li>
+    <li><b>后端:</b> Node.js, PostgreSQL</li>
+    <li><b>工具:</b> Git, Docker, Obsidian, Vercel</li>
+  </ul>
+
+  <h2 id='projects'>Projects</h2>
+  <h3>Shero</h3>
+  <p>2026年3月 - 带领非专业团队开发的健身 Web 应用，使用 Lovable 平台与 Vercel 部署，包含数据可视化、运动追踪和 PWA 安装等功能。</p>
+
+  <h3>电池日常</h3>
+  <p>2026年2月 - 硬核拆解并自行查询维修手册，成功为 Dell Inspiron 5502 更换电池。</p>
+
+  <h2 id='gossips'>Gossips</h2>
+  <Collapse title='为什么学编程？'>
+    一开始是被网页设计吸引，觉得能用自己的代码创造出好看的页面很酷。后来慢慢接触到前后端、数据库，发现编程的世界真的很大，还有很多东西要学！
+  </Collapse>
+  <Collapse title='关于滑板'>
+    ollie 真的好难 😂 但每次有一点进步都会开心很久。目标是有一天能做出一个漂亮的 kickflip！
+  </Collapse>
+
+  <h2 id='about-blog'>About Blog</h2>
+  <p>这个博客记录我的技术学习笔记和生活记录。主要分享前端开发、编程学习相关的内容，也会记录一些日常。</p>
+  <p>Website history:</p>
+  <Timeline
+    events={[
+      {
+        date: '2026-07-05',
+        content:
+          '使用 <a href="https://astro.build/" target="_blank">Astro</a> + <a href="https://github.com/cworld1/astro-theme-pure" target="_blank">Pure Theme</a> 搭建个人博客，部署到 Vercel'
+      }
+    ]}
+  />
+  <p>
+    The smooth operation and personalized customization of website also rely on the resources and
+    technical support provided by the following excellent projects/service providers:
+  </p>
+  <ul>
+    <li>Framework & Theme: <a href='https://astro.build/' target='_blank'>Astro</a> + <a
+        href='https://github.com/cworld1/astro-theme-pure'
+        target='_blank'>Astro Theme Pure</a
+      >
+    </li>
+    <li>Site hosting: <a href='https://vercel.com/' target='_blank'>Vercel</a></li>
+  </ul>
+</PageLayout>

@@ -1,0 +1,45 @@
+---
+import PageLayout from '@/layouts/CommonPage.astro'
+import ProjectSection from '@/components/projects/ProjectSection.astro'
+
+const headings = [
+  { depth: 2, slug: 'programs', text: 'Programs' },
+  { depth: 2, slug: 'learnings', text: 'Learnings' }
+]
+---
+
+<PageLayout title='Projects' {headings} view>
+  <h2 id='programs'>Programs</h2>
+  <ProjectSection
+    projects={[
+      {
+        name: '💪 Shero',
+        description: '健身 Web 应用，包含数据可视化、运动追踪和 PWA 安装等功能',
+        links: [
+          { type: 'site', href: 'https://github.com/hanzhe-one' }
+        ]
+      },
+      {
+        name: '🔋 电池日常',
+        description: 'Dell Inspiron 5502 笔记本电脑电池更换记录',
+        links: [
+          { type: 'site', href: 'https://github.com/hanzhe-one' }
+        ]
+      }
+    ]}
+  />
+
+  <h2 id='learnings'>Learnings</h2>
+  <ProjectSection
+    class='my-2'
+    projects={[
+      {
+        name: '前端学习笔记',
+        description: 'React、Three.js、Tailwind CSS 等前端技术学习记录',
+        links: [
+          { type: 'github', href: 'https://github.com/hanzhe-one' }
+        ]
+      }
+    ]}
+  />
+</PageLayout>
