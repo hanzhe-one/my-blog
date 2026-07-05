@@ -4,8 +4,8 @@ export const theme: ThemeUserConfig = {
   title: '小喆 Personal Blog',
   author: '小喆',
   description: 'Stay hungry, stay foolish',
-  favicon: '/favicon/favicon.ico',
-  socialCard: '/images/social-card.png',
+  favicon: '/avatar.jpg',
+  socialCard: '/avatar.jpg',
   locale: {
     lang: 'zh-CN',
     attrs: 'zh_CN',
