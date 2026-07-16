@@ -1,15 +1,15 @@
 import type { APIRoute } from 'astro'
 
-const robotsTxt = `
-User-agent: GPTBot
-User-agent: ClaudeBot
-User-agent: Claude-Web
+export const prerender = true
 
-User-agent: *
-Allow: /
-
-Sitemap: ${new URL('sitemap-index.xml', import.meta.env.SITE).href}
-`.trim()
+const site = import.meta.env.SITE
+const robotsTxt = [
+  'User-agent: *',
+  'Allow: /',
+  'Disallow: /api/',
+  '',
+  `Sitemap: ${new URL('/sitemap.xml', site).href}`
+].join('\n')
 
 export const GET: APIRoute = () =>
   new Response(robotsTxt, {

@@ -1,5 +1,4 @@
 ---
-import { type ImageMetadata } from 'astro'
 import { Image } from 'astro:assets'
 
 import type { IconsType } from 'astro-pure/types'
@@ -10,8 +9,9 @@ interface Props {
   class?: string
   methods: {
     name: string
-    icon: IconsType
+    icon: string
     image: ImageMetadata
+    methodName: 'wechat_pay' | 'alipay'
   }[]
 }
 
@@ -21,9 +21,16 @@ const { class: className, methods, ...props } = Astro.props
 <div class={cn('flex flex-col justify-center gap-4 sm:flex-row', className)} {...props}>
   {
     methods.map((item) => (
-      <div class='sponsorship-card relative justify-center overflow-hidden rounded-xl border bg-white'>
+      <div
+        class='sponsorship-card relative justify-center overflow-hidden rounded-xl border bg-white'
+        tabindex='0'
+        data-analytics-reveal-event='sponsorship_method_reveal'
+        data-analytics-surface='sponsorship'
+        data-analytics-method-name={item.methodName}
+        data-analytics-action='reveal'
+      >
         <div class='sponsorship-card-icon absolute bottom-0 end-0 start-0 top-0 flex items-center justify-center transition-opacity'>
-          <Icon class='size-20' name={item.icon} />
+          <Icon class='size-20' name={item.icon as IconsType} />
         </div>
         <Image
           class='sponsorship-card-img mx-auto my-0 max-w-60 blur-sm transition-opacity'
