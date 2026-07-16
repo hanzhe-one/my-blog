@@ -6,7 +6,6 @@ import { Collapse, Timeline } from 'astro-pure/user'
 import Comment from '@/components/comment/Comment.astro'
 import PageLayout from '@/layouts/CommonPage.astro'
 import FriendList from '@/components/links/FriendList.astro'
-import FriendConstellation from '@/components/links/FriendConstellation.astro'
 
 const headings = [
   { depth: 2, slug: 'friend-links', text: 'Friend Links' },
@@ -23,7 +22,7 @@ const copyAllScript = `navigator.clipboard.writeText(${JSON.stringify(allApplyTe
 <PageLayout title='Links' {headings} info='/links'>
   <h2 id='friend-links'>Friend Links</h2>
   <p>Friends are stars; I'm at the center, and each line is a connection. Hover a star to see who it is.</p>
-  <FriendConstellation list={friends[0]} meLabel='joyehuang.me' />
+  <FriendList list={friends[0]} />
   <Collapse title='Links with Bad Status'>
     <FriendList list={friends[1]} />
   </Collapse>

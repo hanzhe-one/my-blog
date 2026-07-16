@@ -1,8 +1,8 @@
 ---
 import { Button, Icon } from 'astro-pure/user'
 import PageLayout from '@/layouts/CommonPage.astro'
-import GitHubContributions from '@/components/projects/GitHubContributions.astro'
 import ProjectSection from '@/components/projects/ProjectSection.astro'
+import GitHubContributions from '@/components/projects/GitHubContributions.astro'
 import Sponsors from '@/components/projects/Sponsors.astro'
 import Sponsorship from '@/components/projects/Sponsorship.astro'
 import alipay from '@/assets/alipay-qrcode.jpg'
@@ -18,12 +18,12 @@ const headings = [
 ---
 
 <PageLayout title='Projects' {headings} info={{ slug: '/projects', hideComment: true }}>
-  <p>GitHub Activities</p>
-  <GitHubContributions username='joyehuang' />
   <p>如果你觉得合作一个项目会有趣或有意义，你可以通过捐赠支持我的工作，或者联系我一起讨论项目。</p>
   <Button title='Checkout sponsorship' class='w-fit' href='#sponsorship'>
     <Icon class='size-5' name='receive-money' slot='before' />
   </Button>
+
+  <GitHubContributions username='hanzhe-one' />
 
   <h2 id='open-source'>Open Source</h2>
   <ProjectSection
@@ -35,7 +35,7 @@ const headings = [
         description:
           'OpenHarness 零基础交互式教程 — Agent Loop、Tools、Memory、Multi-Agent。',
         links: [
-          { type: 'github', href: 'https://github.com/joyehuang/Learn-Open-Harness' }
+          { type: 'github', href: 'https://github.com/hanzhe-one/Learn-Open-Harness' }
         ]
       },
       {
@@ -43,7 +43,7 @@ const headings = [
         name: 'minimind-notes',
         description: '从零构建 LLM — Transformer、Pretraining、SFT 的原理与对照实验。',
         links: [
-          { type: 'github', href: 'https://github.com/joyehuang/minimind-notes' }
+          { type: 'github', href: 'https://github.com/hanzhe-one/minimind-notes' }
         ]
       }
     ]}
@@ -76,7 +76,7 @@ const headings = [
         description:
           'Prepwise 是我打造的一个AI面试陪练工具，通过语音模拟真实面试，帮你自信开口、即时提升。',
         links: [
-          { type: 'github', href: 'https://github.com/joyehuang/interview-prep' },
+          { type: 'github', href: 'https://github.com/hanzhe-one/interview-prep' },
           { type: 'site', href: 'https://interview-prep-eosin.vercel.app/sign-in' }
         ]
       },
@@ -86,7 +86,7 @@ const headings = [
         description:
           'QQ群打卡机器人，自动管理群内打卡记录和提醒。',
         links: [
-          { type: 'github', href: 'https://github.com/joyehuang/qq-bot' }
+          { type: 'github', href: 'https://github.com/hanzhe-one/qq-bot' }
         ]
       }
     ]}
@@ -121,7 +121,7 @@ const headings = [
         id: 'ucb_cs61a',
         name: 'UCB CS61A',
         description: '我自己学习61a的代码',
-        links: [{ type: 'github', href: 'https://github.com/joyehuang/interview-prep' }]
+        links: [{ type: 'github', href: 'https://github.com/hanzhe-one/interview-prep' }]
       }
     ]}
   />

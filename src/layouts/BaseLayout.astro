@@ -9,7 +9,6 @@ import AnalyticsEvents from '@/components/AnalyticsEvents.astro'
 import BaseHead from '@/components/BaseHead.astro'
 import ViewCounter from '@/components/comment/ViewCounter.astro'
 import Header from '@/components/Header.astro'
-import DevModeHost from '@/components/terminal/DevModeHost'
 import ThemeProvider from '@/components/ThemeProvider.astro'
 import config from '@/site-config'
 
@@ -55,7 +54,6 @@ const htmlLang = lang === 'en' ? 'en' : config.locale.lang
       <slot />
       {chrome && <Footer />}
     </div>
-    <DevModeHost client:only='react' />
     <Analytics />
     <AnalyticsEvents />
     <SpeedInsights />

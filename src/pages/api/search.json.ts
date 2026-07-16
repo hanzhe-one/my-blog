@@ -4,7 +4,7 @@ import { getCollection } from 'astro:content'
 export const prerender = false
 
 type SearchDoc = {
-  collection: 'blog' | 'notes'
+  collection: 'blog'
   title: string
   description?: string
   url: string
@@ -54,10 +54,7 @@ function clampLimit(limit: number) {
 async function buildSearchDocs(lang: 'zh' | 'en'): Promise<SearchDoc[]> {
   // en 集合的路由用 translationKey（.en 文件名 slug 化后不是合法路由）
   if (lang === 'en') {
-    const [blogPosts, notesEntries] = await Promise.all([
-      getCollection('blogEn', ({ data }) => !data.draft && Boolean(data.translationKey)),
-      getCollection('notesEn', ({ data }) => !data.draft && Boolean(data.translationKey))
-    ])
+    const blogPosts = await getCollection('blogEn', ({ data }) => !data.draft && Boolean(data.translationKey))
 
     const blogDocs = blogPosts.map<SearchDoc>((entry) => ({
       collection: 'blog',
@@ -69,23 +66,10 @@ async function buildSearchDocs(lang: 'zh' | 'en'): Promise<SearchDoc[]> {
       body: normalizeBody((entry as { body?: string }).body ?? '')
     }))
 
-    const noteDocs = notesEntries.map<SearchDoc>((entry) => ({
-      collection: 'notes',
-      title: entry.data.title,
-      description: entry.data.description,
-      url: `/en/notes/${encodeURI(entry.data.translationKey!)}`,
-      date: formatDate(entry.data.date),
-      tags: entry.data.tags,
-      body: normalizeBody((entry as { body?: string }).body ?? '')
-    }))
-
-    return [...blogDocs, ...noteDocs]
+    return blogDocs
   }
 
-  const [blogPosts, notesEntries] = await Promise.all([
-    getCollection('blog', ({ data }) => !data.draft),
-    getCollection('notes', ({ data }) => !data.draft)
-  ])
+  const blogPosts = await getCollection('blog', ({ data }) => !data.draft)
 
   const blogDocs = blogPosts.map<SearchDoc>((entry) => ({
     collection: 'blog',
@@ -97,17 +81,7 @@ async function buildSearchDocs(lang: 'zh' | 'en'): Promise<SearchDoc[]> {
     body: normalizeBody((entry as { body?: string }).body ?? '')
   }))
 
-  const noteDocs = notesEntries.map<SearchDoc>((entry) => ({
-    collection: 'notes',
-    title: entry.data.title,
-    description: entry.data.description,
-    url: `/notes/${encodeURI(entry.id)}`,
-    date: formatDate(entry.data.date),
-    tags: entry.data.tags,
-    body: normalizeBody((entry as { body?: string }).body ?? '')
-  }))
-
-  return [...blogDocs, ...noteDocs]
+  return blogDocs
 }
 
 function scoreDoc(doc: SearchDoc, query: string): SearchResult | null {

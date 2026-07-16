@@ -7,7 +7,7 @@ const avatarBuffer = fs.readFileSync(path.resolve('./src/assets/avatar.jpg'))
 const avatarDataUrl = `data:image/png;base64,${avatarBuffer.toString('base64')}`
 
 const PRIMARY = '#659EB9'
-const SITE = 'joyehuang.me'
+const SITE = 'xiaozheblog.vercel.app'
 const LATIN_CHARS =
   'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,:;!?@#$%&*()[]{}<>/\\|-_=+"\'` ·⭐'
 
