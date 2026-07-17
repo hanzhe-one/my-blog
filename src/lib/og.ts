@@ -165,9 +165,9 @@ export async function defaultOgPng(opts: {
         )
       ]
     ),
-    footerLine('Melbourne · Build fast, learn faster')
+    footerLine('China · Build fast, learn faster')
   ])
-  return renderPng(tree, opts.name + opts.tagline + 'Melbourne · Build fast, learn faster')
+  return renderPng(tree, opts.name + opts.tagline + 'China · Build fast, learn faster')
 }
 
 export async function postOgPng(opts: {
