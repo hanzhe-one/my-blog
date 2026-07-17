@@ -1,0 +1,79 @@
+---
+import { Image } from 'astro:assets'
+import { getCollection } from 'astro:content'
+import avatar from 'src/assets/avatar.jpg'
+
+import { Quote } from 'astro-pure/advanced'
+import { Button, Icon, Label } from 'astro-pure/user'
+import PageLayout from '@/layouts/BaseLayout.astro'
+import Section from '@/components/home/Section.astro'
+import PostPreviewEn from '@/components/blog/PostPreviewEn.astro'
+import config from '@/site-config'
+
+export const prerender = true
+
+const MAX_POSTS = 5
+const allPostsByDate = (await getCollection('blogEn'))
+  .filter((p) => (import.meta.env.PROD ? !p.data.draft : true))
+  .sort(
+    (a, b) =>
+      +new Date(b.data.updatedDate ?? b.data.publishDate) -
+      +new Date(a.data.updatedDate ?? a.data.publishDate)
+  )
+  .slice(0, MAX_POSTS)
+---
+
+<PageLayout meta={{ title: 'Home' }} highlightColor='#659EB9'>
+  <main class='flex w-full flex-col items-center'>
+    <section
+      class='animate mb-10 flex flex-col items-center gap-y-7 relative z-50'
+      id='content-header'
+    >
+      <Image
+        src={avatar}
+        alt='profile'
+        class='h-28 w-auto rounded-full border p-1'
+        loading='eager'
+      />
+
+      <div class='flex flex-col items-center gap-y-4'>
+        <h1 class='text-3xl font-bold'>{config.author}</h1>
+        <div class='flex flex-wrap justify-center gap-x-7 gap-y-3'>
+          <Label title='China'>
+            <Icon name='location' class='size-5' slot='icon' />
+          </Label>
+          <Label
+            title='GitHub'
+            as='a'
+            href='https://github.com/hanzhe-one'
+            target='_blank'
+            data-analytics-event='github_link_click'
+            data-analytics-surface='home_profile'
+            data-analytics-target='profile'
+          >
+            <Icon name='github' class='size-5' slot='icon' />
+          </Label>
+        </div>
+      </div>
+    </section>
+
+    <div
+      id='content'
+      class='animate relative z-0 flex w-full min-w-0 max-w-full flex-col gap-y-10 md:w-4/5 lg:w-5/6'
+    >
+      {
+        allPostsByDate.length > 0 && (
+          <Section title='Blog'>
+            <ul class='flex flex-col gap-y-1.5 sm:gap-y-2'>
+              {allPostsByDate.map((p) => (
+                <PostPreviewEn post={p} />
+              ))}
+            </ul>
+            <Button title='More blogs' class='w-fit self-end' href='/en/blog' style='ahead' />
+          </Section>
+        )
+      }
+    </div>
+    <Quote class='mt-12' />
+  </main>
+</PageLayout>

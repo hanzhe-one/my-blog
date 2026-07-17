@@ -9,36 +9,49 @@ function removeDupsAndLowerCase(array: string[]) {
   return Array.from(distinctItems)
 }
 
-// Define blog collection
-const blog = defineCollection({
-  // Load Markdown and MDX files in the `src/content/blog/` directory.
-  loader: glob({ base: './src/content/blog', pattern: '**/*.{md,mdx}' }),
-  // Required
-  schema: ({ image }) =>
-    z.object({
-      // Required
-      title: z.string().max(60),
-      description: z.string().max(160),
-      publishDate: z.coerce.date(),
-      // Optional
-      updatedDate: z.coerce.date().optional(),
-      heroImage: z
-        .object({
-          src: image(),
-          alt: z.string().optional(),
-          inferSize: z.boolean().optional(),
-          width: z.number().optional(),
-          height: z.number().optional(),
+// Shared schemas so the Chinese collections and their English mirrors stay in sync.
+const blogSchema = ({ image }: { image: (...args: any[]) => any }) =>
+  z.object({
+    // Required
+    title: z.string().max(60),
+    description: z.string().max(160),
+    publishDate: z.coerce.date(),
+    // Optional
+    updatedDate: z.coerce.date().optional(),
+    heroImage: z
+      .object({
+        src: image(),
+        alt: z.string().optional(),
+        inferSize: z.boolean().optional(),
+        width: z.number().optional(),
+        height: z.number().optional(),
 
-          color: z.string().optional()
-        })
-        .optional(),
-      tags: z.array(z.string()).default([]).transform(removeDupsAndLowerCase),
-      language: z.string().optional(),
-      draft: z.boolean().default(false),
-      // Special fields
-      comment: z.boolean().default(true)
-    })
+        color: z.string().optional()
+      })
+      .optional(),
+    tags: z.array(z.string()).default([]).transform(removeDupsAndLowerCase),
+    language: z.string().optional(),
+    ogImage: z.string().optional(),
+    // For English mirrors: the Chinese entry's URL path after `/blog/`
+    // (e.g. `20251216---normalization/post`). Drives en routing + hreflang.
+    translationKey: z.string().optional(),
+    tocDepth: z.number().int().min(2).max(6).optional(),
+    tocLabels: z.record(z.string(), z.string()).optional(),
+    draft: z.boolean().default(false),
+    comment: z.boolean().default(true)
+  })
+
+// Chinese (default) blog posts: every `post.mdx` EXCEPT English mirrors `post.en.mdx`.
+const blog = defineCollection({
+  loader: glob({ base: './src/content/blog', pattern: ['**/*.{md,mdx}', '!**/*.en.{md,mdx}'] }),
+  schema: blogSchema
 })
 
-export const collections = { blog }
+// English mirrors: `post.en.mdx` siblings, kept in a separate collection so they
+// never leak into the Chinese blog list / RSS / OG generation.
+const blogEn = defineCollection({
+  loader: glob({ base: './src/content/blog', pattern: '**/*.en.{md,mdx}' }),
+  schema: blogSchema
+})
+
+export const collections = { blog, blogEn }

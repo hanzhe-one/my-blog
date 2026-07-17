@@ -1,12 +1,20 @@
+import { copyFile } from 'node:fs/promises'
+import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
+import type { AstroIntegration } from 'astro'
 import { rehypeHeadingIds } from '@astrojs/markdown-remark'
+import react from '@astrojs/react'
+import sitemap from '@astrojs/sitemap'
 import vercel from '@astrojs/vercel'
 import AstroPureIntegration from 'astro-pure'
 import { defineConfig, svgoOptimizer } from 'astro/config'
 import rehypeKatex from 'rehype-katex'
+import remarkCjkFriendly from 'remark-cjk-friendly'
 import remarkMath from 'remark-math'
 
 // Local integrations
 import rehypeAutolinkHeadings from './src/plugins/rehype-auto-link-headings.ts'
+import remarkReadingTime from './src/plugins/remark-reading-time.ts'
 // Shiki
 import {
   addCollapse,
@@ -21,6 +29,42 @@ import {
   transformerRemoveNotationEscape
 } from './src/plugins/shiki-official/transformers.ts'
 import config from './src/site.config.ts'
+
+const excludedSitemapPathPatterns = [
+  /^\/(?:en\/)?404\/?$/,
+  /^\/(?:en\/)?search\/?$/,
+  /^\/api(?:\/|$)/,
+  /^\/\.well-known\/joye-manifest\.json$/
+]
+
+const shouldIncludeInSitemap = (page: string) => {
+  const { pathname } = new URL(page)
+  return !excludedSitemapPathPatterns.some((pattern) => pattern.test(pathname))
+}
+
+const exposeSingleSitemap = (): AstroIntegration => ({
+  name: 'expose-single-sitemap',
+  hooks: {
+    'astro:build:done': async ({ dir }) => {
+      const outputDir = fileURLToPath(dir)
+      await copyFile(join(outputDir, 'sitemap-0.xml'), join(outputDir, 'sitemap.xml'))
+    }
+  }
+})
+
+const bilingualReadingTime = (): AstroIntegration => ({
+  name: 'bilingual-reading-time',
+  hooks: {
+    'astro:config:setup': ({ updateConfig }) => {
+      // Run after astro-pure's reading-time plugin so this bilingual estimate wins.
+      updateConfig({
+        markdown: {
+          remarkPlugins: [remarkReadingTime]
+        }
+      })
+    }
+  }
+})
 
 // https://astro.build/config
 export default defineConfig({
@@ -40,9 +84,12 @@ export default defineConfig({
 
   // [Adapter]
   // https://docs.astro.build/en/guides/deploy/
+  // 1. Vercel (serverless)
   adapter: vercel({ imageService: true }),
   output: 'server',
-  // Local (standalone)
+  // 2. Vercel (static)
+  // adapter: vercelStatic(),
+  // 3. Local (standalone)
   // adapter: node({ mode: 'standalone' }),
   // output: 'server',
 
@@ -57,7 +104,8 @@ export default defineConfig({
 
   // [Markdown]
   markdown: {
-    remarkPlugins: [remarkMath],
+    // remark-cjk-friendly：修复 **加粗** 紧贴全角标点时不渲染的 CommonMark flanking 问题
+    remarkPlugins: [remarkMath, remarkCjkFriendly],
     rehypePlugins: [
       [rehypeKatex, {}],
       rehypeHeadingIds,
@@ -103,10 +151,21 @@ export default defineConfig({
 
   // [Integrations]
   integrations: [
+    sitemap({
+      filter: shouldIncludeInSitemap,
+      i18n: {
+        defaultLocale: 'zh',
+        locales: {
+          zh: 'zh-CN',
+          en: 'en'
+        }
+      }
+    }),
+    exposeSingleSitemap(),
     // astro-pure will automatically add sitemap, mdx & unocss
-    // sitemap(),
-    // mdx(),
-    AstroPureIntegration(config)
+    AstroPureIntegration(config),
+    bilingualReadingTime(),
+    react()
   ],
 
   // [Experimental]
@@ -123,6 +182,46 @@ export default defineConfig({
     // https://docs.astro.build/en/reference/experimental-flags/queued-rendering/
     queuedRendering: {
       enabled: true
+    }
+  },
+
+  vite: {
+    plugins: [
+      //   visualizer({
+      //     emitFile: true,
+      //     filename: 'stats.html'
+      //   })
+    ],
+    resolve: {
+      dedupe: ['react', 'react-dom']
+    },
+    ssr: {
+      external: ['@resvg/resvg-js'],
+      noExternal: ['satori']
+    },
+    optimizeDeps: {
+      include: [
+        'satori',
+        'linebreak',
+        'base64-js',
+        'unicode-trie',
+        'unicode-properties',
+        '@waline/client',
+        'recaptcha-v3'
+      ],
+      esbuildOptions: {
+        plugins: [
+          {
+            name: 'externalize-virtual-modules',
+            setup(build) {
+              build.onResolve({ filter: /^virtual:/ }, (args) => ({
+                path: args.path,
+                external: true
+              }))
+            }
+          }
+        ]
+      }
     }
   }
 })

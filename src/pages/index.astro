@@ -1,49 +1,39 @@
 ---
 import { Image } from 'astro:assets'
+import avatar from 'src/assets/avatar.jpg'
 
 import { Quote } from 'astro-pure/advanced'
 import { PostPreview } from 'astro-pure/components/pages'
-import { getBlogCollection, sortMDByDate } from 'astro-pure/server'
 import { Button, Icon, Label } from 'astro-pure/user'
+import { getBlogCollection, sortMDByDate } from 'astro-pure/server'
 import PageLayout from '@/layouts/BaseLayout.astro'
-import ProjectCard from '@/components/home/ProjectCard.astro'
 import Section from '@/components/home/Section.astro'
-import SkillLayout from '@/components/home/SkillLayout.astro'
 import config from '@/site-config'
 
-const languages = ['Python', 'Java', 'SQL']
-const frontend = ['React', 'Three.js', 'TypeScript', 'HTML', 'CSS']
-const backend = ['Node.js', 'Vercel', 'PostgreSQL']
+export const prerender = true
 
-const MAX_POSTS = 10
+const MAX_POSTS = 5
 const allPosts = await getBlogCollection()
 const allPostsByDate = sortMDByDate(allPosts).slice(0, MAX_POSTS)
-
-const imagePath = config.logo.src
-const images = import.meta.glob<{ default: ImageMetadata }>(
-  '/src/assets/*.{jpeg,jpg,png,gif,avif,webp}'
-)
-if (!images[imagePath])
-  throw new Error(
-    `"${imagePath}" does not exist in glob: "src/assets/*.{jpeg,jpg,png,gif,avif,webp}"`
-  )
 ---
 
 <PageLayout meta={{ title: 'Home' }} highlightColor='#659EB9'>
   <main class='flex w-full flex-col items-center'>
-    <section class='animate mb-10 flex flex-col items-center gap-y-7' id='content-header'>
+    <section
+      class='animate mb-10 flex flex-col items-center gap-y-7 relative z-50'
+      id='content-header'
+    >
       <Image
-        src={images[imagePath]()}
-        alt={config.logo.alt || 'Profile'}
+        src={avatar}
+        alt='profile'
         class='h-28 w-auto rounded-full border p-1'
         loading='eager'
-        fetchpriority='high'
       />
 
       <div class='flex flex-col items-center gap-y-4'>
-        <h1 class='text-3xl font-medium'>{config.author}</h1>
+        <h1 class='text-3xl font-bold'>{config.author}</h1>
         <div class='flex flex-wrap justify-center gap-x-7 gap-y-3'>
-          <Label title='Shandong, China'>
+          <Label title='China'>
             <Icon name='location' class='size-5' slot='icon' />
           </Label>
           <Label
@@ -51,39 +41,24 @@ if (!images[imagePath])
             as='a'
             href='https://github.com/hanzhe-one'
             target='_blank'
+            data-analytics-event='github_link_click'
+            data-analytics-surface='home_profile'
+            data-analytics-target='profile'
           >
             <Icon name='github' class='size-5' slot='icon' />
           </Label>
         </div>
       </div>
 
-      <a
-        href='/contact'
-        class='flex flex-row items-center gap-x-3 rounded-full border bg-background px-4 py-2 text-sm shadow-sm transition-shadow hover:shadow-md'
-      >
-        <span class='relative flex items-center justify-center'>
-          <span
-            class='absolute size-2 animate-ping rounded-full border border-green-400 bg-green-400 opacity-75'
-          ></span>
-          <span class='size-2 rounded-full bg-green-400'></span>
-        </span>
-        <p class='font-medium text-muted-foreground'>Connect Me!</p>
-      </a>
     </section>
 
-    <div id='content' class='animate flex flex-col gap-y-10 md:w-4/5 lg:w-5/6'>
-      <Section title='About'>
-        <p class='text-muted-foreground'>
-          19岁计科女大，电吉他新手 🎸，正在学习 ollie 的滑板女孩 🛹
-        </p>
-        <p class='text-muted-foreground'>
-          努力不摆烂学技术 ing 💪
-        </p>
-        <Button title='More about me' class='w-fit self-end' href='/about' variant='ahead' />
-      </Section>
+    <div
+      id='content'
+      class='animate relative z-0 flex w-full min-w-0 max-w-full flex-col gap-y-10 md:w-4/5 lg:w-5/6'
+    >
       {
         allPostsByDate.length > 0 && (
-          <Section title='Posts'>
+          <Section title='Blog'>
             <ul class='flex flex-col gap-y-1.5 sm:gap-y-2'>
               {allPostsByDate.map((p) => (
                 <li class='flex flex-col gap-x-2 sm:flex-row'>
@@ -91,22 +66,15 @@ if (!images[imagePath])
                 </li>
               ))}
             </ul>
-            <Button title='More posts' class='w-fit self-end' href='/blog' variant='ahead' />
+            <Button
+              title='More blogs'
+              class='w-fit self-end'
+              href='/blog'
+              style='ahead'
+            />
           </Section>
         )
       }
-
-      <Section title='Education'>
-        <p class='text-muted-foreground'>
-          山东省某大学 · 计算机科学与技术
-        </p>
-      </Section>
-
-      <Section title='Skills'>
-        <SkillLayout title='Languages' skills={languages} />
-        <SkillLayout title='Frontend' skills={frontend} />
-        <SkillLayout title='Backend' skills={backend} />
-      </Section>
     </div>
     <Quote class='mt-12' />
   </main>

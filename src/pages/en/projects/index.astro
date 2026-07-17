@@ -1,0 +1,36 @@
+---
+import PageLayout from '@/layouts/CommonPage.astro'
+import GitHubContributions from '@/components/projects/GitHubContributions.astro'
+import ProjectSection from '@/components/projects/ProjectSection.astro'
+
+const headings = [
+  { depth: 2, slug: 'contributions', text: 'Contributions' },
+  { depth: 2, slug: 'theme', text: 'Theme' }
+]
+---
+
+<PageLayout title='Projects' {headings} info={{ slug: '/projects', hideComment: true }}>
+  <h2 id='contributions'>Contributions</h2>
+  <p class='text-muted-foreground'>GitHub Activities</p>
+  <GitHubContributions username='hanzhe-one' />
+
+  <h2 id='theme'>Theme</h2>
+  <ProjectSection
+    analyticsSection='theme'
+    project={[
+      {
+        id: 'astro_theme_pure',
+        name: '🍭 Astro-theme-pure',
+        description: 'A simple, clean but powerful blog theme built with Astro.',
+        links: [
+          { type: 'github', href: 'https://github.com/cworld1/astro-theme-pure' },
+          { type: 'site', href: 'https://github.com/cworld1/astro-theme-pure' },
+          {
+            type: 'doc',
+            href: 'https://github.com/cworld1/astro-theme-pure/blob/main/src/content/blog/customize/index.md'
+          }
+        ]
+      }
+    ]}
+  />
+</PageLayout>

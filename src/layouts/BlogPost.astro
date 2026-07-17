@@ -6,56 +6,112 @@ import type { CollectionEntry } from 'astro:content'
 import 'katex/dist/katex.min.css'
 
 import { MediumZoom } from 'astro-pure/advanced'
-import { ArticleBottom, Copyright, Hero, TOC } from 'astro-pure/components/pages'
-import config from 'virtual:config'
+import { ArticleBottom, Copyright, Hero } from 'astro-pure/components/pages'
 import PageLayout from '@/layouts/ContentLayout.astro'
-import { Comment, PageInfo } from '@/components/waline'
+import Comment from '@/components/comment/Comment.astro'
+import HeroEn from '@/components/blog/HeroEn.astro'
+import JsonLd from '@/components/JsonLd.astro'
+import TableOfContents from '@/components/navigation/TableOfContents.astro'
+import { getLangFromUrl } from '@/i18n/ui'
+import { integ } from '@/site-config'
 
 interface Props {
-  post: CollectionEntry<'blog'>
-  posts: CollectionEntry<'blog'>[]
+  post: CollectionEntry<'blog' | 'blogEn'>
+  posts: CollectionEntry<'blog' | 'blogEn'>[]
   headings: MarkdownHeading[]
   remarkPluginFrontmatter: Record<string, unknown>
+  back?: string
+  recommend?: boolean
+  enHero?: boolean
 }
 
 const {
   post: { id, data },
   posts,
   headings,
-  remarkPluginFrontmatter
+  remarkPluginFrontmatter,
+  back = '/blog',
+  recommend = true,
+  enHero = false
 } = Astro.props
 
 const {
   description,
-  heroImage,
   publishDate,
   title,
-  updatedDate,
-  draft: isDraft,
-  comment: enableComment
+  updatedDate
 } = data
 
-const socialImage = heroImage
-  ? typeof heroImage.src === 'string'
-    ? heroImage.src
-    : heroImage.src.src
-  : config.socialCard
+// English mirrors (id ends in `.en`) reuse the Chinese post's generated OG image
+// unless a post provides a custom static social card.
+const socialImage = data.ogImage ?? `/og/blog/${id.replace(/\.en$/, '')}.png`
 const articleDate = updatedDate?.toISOString() ?? publishDate.toISOString()
 const primaryColor = data.heroImage?.color ?? 'hsl(var(--primary) / var(--un-text-opacity))'
+const tocDepth = data.tocDepth ?? 3
+const tocLabels = data.tocLabels ?? {}
+const tocHeadings = headings
+  .filter(({ depth }) => depth <= tocDepth)
+  .map((heading) => ({
+    ...heading,
+    text: tocLabels[heading.slug] ?? heading.text
+  }))
+
+// Structured data：BlogPosting + 面包屑；author/publisher 引用 BaseHead 里全站输出的 Person
+const lang = getLangFromUrl(Astro.url)
+const origin = Astro.site!.origin
+const pageUrl = new URL(Astro.url.pathname, Astro.site).href
+const articleLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  '@id': `${pageUrl}#article`,
+  mainEntityOfPage: pageUrl,
+  headline: title,
+  description,
+  inLanguage: lang === 'en' ? 'en' : 'zh-CN',
+  datePublished: publishDate.toISOString(),
+  dateModified: (updatedDate ?? publishDate).toISOString(),
+  image: new URL(socialImage, Astro.site).href,
+  ...(data.tags.length ? { keywords: data.tags } : {}),
+  author: { '@id': `${origin}/#person` },
+  publisher: { '@id': `${origin}/#person` },
+  isPartOf: { '@id': `${origin}/#website` }
+}
+const breadcrumbLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: lang === 'en' ? 'Home' : '首页',
+      item: lang === 'en' ? `${origin}/en` : `${origin}/`
+    },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: 'Blog',
+      item: lang === 'en' ? `${origin}/en/blog` : `${origin}/blog`
+    },
+    { '@type': 'ListItem', position: 3, name: title }
+  ]
+}
 ---
 
 <PageLayout
   meta={{ articleDate, description, ogImage: socialImage, title }}
   highlightColor={primaryColor}
-  back='/blog'
+  back={back}
 >
-  {!!headings.length && <TOC {headings} slot='sidebar' />}
+  <JsonLd schema={[articleLd, breadcrumbLd]} />
+  {!!tocHeadings.length && <TableOfContents headings={tocHeadings} slot='sidebar' />}
 
-  <Hero {data} {remarkPluginFrontmatter} slot='header'>
-    <Fragment slot='description'>
-      {!isDraft && enableComment && <PageInfo comment class='mt-1' />}
-    </Fragment>
-  </Hero>
+  {
+    enHero ? (
+      <HeroEn {data} {remarkPluginFrontmatter} slot='header' />
+    ) : (
+      <Hero {data} {remarkPluginFrontmatter} slot='header' />
+    )
+  }
 
   <slot />
 
@@ -63,12 +119,12 @@ const primaryColor = data.heroImage?.color ?? 'hsl(var(--primary) / var(--un-tex
     {/* Copyright */}
     <Copyright {data} />
     {/* Article recommend */}
-    <ArticleBottom collections={posts} {id} class='mt-3 sm:mt-6' />
-    { /* Comment */
-    !isDraft && enableComment && <Comment class='mt-3 sm:mt-6' />}
+    {recommend && <ArticleBottom collections={posts} {id} class='mt-3 sm:mt-6' />}
+    {/* Comments */}
+    {data.comment && <Comment class='mt-6' />}
   </Fragment>
 
   <slot name='bottom-sidebar' slot='bottom-sidebar' />
 </PageLayout>
 
-{config.integ.mediumZoom.enable && <MediumZoom />}
+{integ.mediumZoom.enable && <MediumZoom />}
