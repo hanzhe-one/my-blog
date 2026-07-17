@@ -16,21 +16,78 @@ const { username = 'hanzhe-one', displayName } = Astro.props
 let total = 0
 let contributions: Contribution[] = []
 
-// Hit our own /api endpoint — it proxies the authenticated GitHub GraphQL
-// API so the calendar includes private contributions (the public scrape
-// undercounts and lags behind today by several days).
-const apiOrigin = Astro.url.origin
-try {
-  const res = await fetch(
-    `${apiOrigin}/api/github-contributions?username=${encodeURIComponent(username)}`
-  )
-  if (res.ok) {
-    const data = (await res.json()) as ApiResponse
-    contributions = data.contributions ?? []
-    total = data.total?.lastYear ?? 0
+// Fetch GitHub's contribution calendar directly (server-side) instead of
+// round-tripping through our own /api endpoint — self-fetching the endpoint
+// from inside an SSR function is unreliable on Vercel (loopback/network
+// restrictions), which left the grid empty on first paint. Uses the same
+// GITHUB_TOKEN, so private contributions are still included when present.
+const LEVEL_MAP: Record<string, 0 | 1 | 2 | 3 | 4> = {
+  NONE: 0,
+  FIRST_QUARTILE: 1,
+  SECOND_QUARTILE: 2,
+  THIRD_QUARTILE: 3,
+  FOURTH_QUARTILE: 4
+}
+const GH_QUERY = `
+  query($login: String!) {
+    user(login: $login) {
+      contributionsCollection {
+        contributionCalendar {
+          totalContributions
+          weeks {
+            contributionDays {
+              date
+              contributionCount
+              contributionLevel
+            }
+          }
+        }
+      }
+    }
   }
-} catch {
-  // network blip during build — render an empty grid
+`
+const ghToken = import.meta.env.GITHUB_TOKEN ?? process.env.GITHUB_TOKEN
+if (ghToken) {
+  try {
+    const ghRes = await fetch('https://api.github.com/graphql', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${ghToken}`,
+        'Content-Type': 'application/json',
+        'User-Agent': 'xiaozheblog.vercel.app'
+      },
+      body: JSON.stringify({ query: GH_QUERY, variables: { login: username } })
+    })
+    if (ghRes.ok) {
+      const payload = (await ghRes.json()) as {
+        data?: {
+          user?: {
+            contributionsCollection?: {
+              contributionCalendar?: {
+                totalContributions: number
+                weeks: { contributionDays: { date: string; contributionCount: number; contributionLevel: string }[] }[]
+              }
+            }
+          }
+        }
+      }
+      const cal = payload.data?.user?.contributionsCollection?.contributionCalendar
+      if (cal) {
+        total = cal.totalContributions
+        for (const week of cal.weeks) {
+          for (const day of week.contributionDays) {
+            contributions.push({
+              date: day.date,
+              count: day.contributionCount,
+              level: LEVEL_MAP[day.contributionLevel] ?? 0
+            })
+          }
+        }
+      }
+    }
+  } catch {
+    // network blip — render an empty grid
+  }
 }
 
 // Drop any cells dated after today (the API sometimes overshoots the current
