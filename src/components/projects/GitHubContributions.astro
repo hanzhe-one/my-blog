@@ -215,7 +215,7 @@ const formattedTotal = total.toLocaleString('en-US')
     --gh-gap: 3px;
     --gh-spotlight: 110px;
 
-    --gh-base-empty: #eef1f4;
+    --gh-base-empty: #d3dce4;
     --gh-base-1: #cfe2ec;
     --gh-base-2: #9bc5d8;
     --gh-base-3: #6aa6c1;
@@ -319,6 +319,7 @@ const formattedTotal = total.toLocaleString('en-US')
   .gh-cell {
     border-radius: 2px;
     background: var(--cell-base);
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
     transition: transform 0.18s ease;
   }
   /* Padding cells (leading-Sunday alignment fillers) — keep their grid track
