@@ -1,6 +1,7 @@
 ---
 import PageLayout from '@/layouts/CommonPage.astro'
 import GitHubContributions from '@/components/projects/GitHubContributions.astro'
+import ProjectSection from '@/components/projects/ProjectSection.astro'
 
 const headings = [
   { depth: 2, slug: 'contributions', text: 'Contributions' },
@@ -14,8 +15,22 @@ const headings = [
   <GitHubContributions username='hanzhe-one' />
 
   <h2 id='theme'>Theme</h2>
-  <p class='text-muted-foreground'>
-    本站基于 <a href='https://github.com/cworld1/astro-theme-pure' target='_blank' class='text-primary hover:underline'>🍭 Astro-theme-pure</a>
-    构建 —— 一个简洁而强大的 Astro 博客主题。
-  </p>
+  <ProjectSection
+    analyticsSection='theme'
+    project={[
+      {
+        id: 'astro_theme_pure',
+        name: '🍭 Astro-theme-pure',
+        description: '一个简洁而强大的 Astro 博客主题。',
+        links: [
+          { type: 'github', href: 'https://github.com/cworld1/astro-theme-pure' },
+          { type: 'site', href: 'https://github.com/cworld1/astro-theme-pure' },
+          {
+            type: 'doc',
+            href: 'https://github.com/cworld1/astro-theme-pure/blob/main/src/content/blog/customize/index.md'
+          }
+        ]
+      }
+    ]}
+  />
 </PageLayout>
