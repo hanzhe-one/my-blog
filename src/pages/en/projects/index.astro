@@ -1,27 +1,14 @@
 ---
-import { Button, Icon } from 'astro-pure/user'
 import PageLayout from '@/layouts/CommonPage.astro'
 import GitHubContributions from '@/components/projects/GitHubContributions.astro'
-import Sponsorship from '@/components/projects/Sponsorship.astro'
-import alipay from '@/assets/alipay-qrcode.jpg'
-import wechat from '@/assets/wechat-qrcode.jpg'
 
 const headings = [
   { depth: 2, slug: 'contributions', text: 'Contributions' },
-  { depth: 2, slug: 'theme', text: 'Theme' },
-  { depth: 2, slug: 'sponsorship', text: 'Sponsorship' }
+  { depth: 2, slug: 'theme', text: 'Theme' }
 ]
 ---
 
 <PageLayout title='Projects' {headings} info={{ slug: '/projects', hideComment: true }}>
-  <p>
-    If you think collaborating on a project would be interesting or meaningful, you can support my work
-    through sponsorship, or reach out to discuss a project together.
-  </p>
-  <Button title='Checkout sponsorship' class='w-fit' href='#sponsorship'>
-    <Icon class='size-5' name='receive-money' slot='before' />
-  </Button>
-
   <h2 id='contributions'>Contributions</h2>
   <p class='text-muted-foreground'>My public contribution graph on GitHub.</p>
   <GitHubContributions username='hanzhe-one' />
@@ -32,33 +19,4 @@ const headings = [
     <a href='https://github.com/cworld1/astro-theme-pure' target='_blank' class='text-primary hover:underline'>🍭 Astro-theme-pure</a>
     — a simple, clean but powerful Astro blog theme.
   </p>
-
-  <h2 id='sponsorship'>Sponsorship</h2>
-  <p>Please leave a message or reach out after sponsoring.</p>
-  <Sponsorship
-    methods={[
-      { name: 'WeChat', icon: 'wechat-pay', image: wechat, methodName: 'wechat_pay' },
-      { name: 'Alipay', icon: 'alipay', image: alipay, methodName: 'alipay' }
-    ]}
-  />
 </PageLayout>
-
-<style>
-  .sponsorship-card {
-    & .sponsorship-card-img {
-      opacity: 0.3;
-      --un-blur: blur(4px);
-      filter: var(--un-blur);
-    }
-
-    &:hover {
-      & .sponsorship-card-icon {
-        opacity: 0;
-      }
-      & .sponsorship-card-img {
-        opacity: 1;
-        --un-blur: blur(0);
-      }
-    }
-  }
-</style>
