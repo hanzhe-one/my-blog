@@ -121,6 +121,12 @@ const typographyConfig = {
     'code:not(pre code)': {
       'white-space': 'pre-wrap!important',
       'word-break': 'break-all!important'
+    },
+    'code:not(pre code)::before': {
+      content: 'none'
+    },
+    'code:not(pre code)::after': {
+      content: 'none'
     }
   }
 }
