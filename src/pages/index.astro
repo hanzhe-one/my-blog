@@ -1,4 +1,5 @@
 ---
+import Mascot from '@/components/Mascot.astro'
 import { Image } from 'astro:assets'
 import avatar from 'src/assets/avatar.jpg'
 
@@ -7,6 +8,7 @@ import { PostPreview } from 'astro-pure/components/pages'
 import { Button, Icon, Label } from 'astro-pure/user'
 import { getBlogCollection, sortMDByDate } from 'astro-pure/server'
 import PageLayout from '@/layouts/BaseLayout.astro'
+import OpenSourceProjects from '@/components/projects/OpenSourceProjects.astro'
 import Section from '@/components/home/Section.astro'
 import config from '@/site-config'
 
@@ -17,65 +19,74 @@ const allPosts = await getBlogCollection()
 const allPostsByDate = sortMDByDate(allPosts).slice(0, MAX_POSTS)
 ---
 
-<PageLayout meta={{ title: 'xiaozhe blog' }} highlightColor='#659EB9'>
-  <main class='flex w-full flex-col items-center'>
+<PageLayout meta={{ title: 'xiaozhe blog' }} highlightColor="#659EB9">
+  <main class="flex w-full flex-col items-center">
     <section
-      class='animate mb-10 flex flex-col items-center gap-y-7 relative z-50'
-      id='content-header'
+      class="animate mb-10 flex flex-col items-center gap-y-7 relative z-50"
+      id="content-header"
     >
+      <Mascot scene="hello" />
       <Image
         src={avatar}
-        alt='profile'
-        class='h-28 w-auto rounded-full border p-1'
-        loading='eager'
+        alt="profile"
+        class="h-28 w-auto rounded-full border p-1"
+        loading="eager"
       />
 
-      <div class='flex flex-col items-center gap-y-4'>
-        <h1 class='text-3xl font-bold'>{config.author}</h1>
-        <div class='flex flex-wrap justify-center gap-x-7 gap-y-3'>
-          <Label title='China'>
-            <Icon name='location' class='size-5' slot='icon' />
+      <div class="flex flex-col items-center gap-y-4">
+        <h1 class="text-3xl font-bold">{config.author}</h1>
+        <div class="flex flex-wrap justify-center gap-x-7 gap-y-3">
+          <Label title="China">
+            <Icon name="location" class="size-5" slot="icon" />
           </Label>
           <Label
-            title='GitHub'
-            as='a'
-            href='https://github.com/hanzhe-one'
-            target='_blank'
-            data-analytics-event='github_link_click'
-            data-analytics-surface='home_profile'
-            data-analytics-target='profile'
+            title="GitHub"
+            as="a"
+            href="https://github.com/hanzhe-one"
+            target="_blank"
+            data-analytics-event="github_link_click"
+            data-analytics-surface="home_profile"
+            data-analytics-target="profile"
           >
-            <Icon name='github' class='size-5' slot='icon' />
+            <Icon name="github" class="size-5" slot="icon" />
           </Label>
         </div>
       </div>
-
     </section>
 
     <div
-      id='content'
-      class='animate relative z-0 flex w-full min-w-0 max-w-full flex-col gap-y-10 md:w-4/5 lg:w-5/6'
+      id="content"
+      class="animate relative z-0 flex w-full min-w-0 max-w-full flex-col gap-y-10 md:w-4/5 lg:w-5/6"
     >
+      <Section title="开源实践">
+        <OpenSourceProjects />
+        <Button
+          title="所有项目"
+          class="w-fit self-end"
+          href="/projects"
+          style="ahead"
+        />
+      </Section>
       {
         allPostsByDate.length > 0 && (
-          <Section title='Blog'>
-            <ul class='flex flex-col gap-y-1.5 sm:gap-y-2'>
+          <Section title="Blog">
+            <ul class="flex flex-col gap-y-1.5 sm:gap-y-2">
               {allPostsByDate.map((p) => (
-                <li class='flex flex-col gap-x-2 sm:flex-row'>
+                <li class="flex flex-col gap-x-2 sm:flex-row">
                   <PostPreview post={p} />
                 </li>
               ))}
             </ul>
             <Button
-              title='More blogs'
-              class='w-fit self-end'
-              href='/blog'
-              style='ahead'
+              title="More blogs"
+              class="w-fit self-end"
+              href="/blog"
+              style="ahead"
             />
           </Section>
         )
       }
     </div>
-    <Quote class='mt-12' />
+    <Quote class="mt-12" />
   </main>
 </PageLayout>

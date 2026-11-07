@@ -1,7 +1,14 @@
 ---
-import { getLangFromUrl, hasEnAlternate, localizedPath, useTranslations, type Lang } from '@/i18n/ui'
+import {
+  getLangFromUrl,
+  hasEnAlternate,
+  localizedPath,
+  useTranslations,
+  type Lang
+} from '@/i18n/ui'
 
 import { Icon } from 'astro-pure/user'
+import AppearanceToggle from '@/components/AppearanceToggle.astro'
 import LanguageSwitcher from '@/components/LanguageSwitcher.astro'
 import config from '@/site-config'
 
@@ -74,7 +81,11 @@ const searchHref = localizedPath('/search', lang)
     </div>
 
     {/* buttons */}
-    <div class='z-30 flex gap-x-4 group-[.not-top]:gap-x-2' style='transition:gap 0.3s'>
+    <div
+      class='z-30 flex gap-x-4 max-sm:gap-x-2 group-[.not-top]:gap-x-2'
+      style='transition:gap 0.3s'
+    >
+      <AppearanceToggle {lang} />
       <LanguageSwitcher lang={lang} />
       <button
         id='toggleDarkMode'
@@ -102,7 +113,11 @@ const searchHref = localizedPath('/search', lang)
 <script is:inline>
   const toggleDarkModeElement = document.getElementById('toggleDarkMode')
   if (toggleDarkModeElement) {
-    toggleDarkModeElement.dataset.theme = localStorage.getItem('theme') || 'system'
+    try {
+      toggleDarkModeElement.dataset.theme = localStorage.getItem('theme') || 'system'
+    } catch {
+      toggleDarkModeElement.dataset.theme = 'system'
+    }
   }
 </script>
 <script>
@@ -147,7 +162,16 @@ const searchHref = localizedPath('/search', lang)
 
       const darkModeBtn = this.querySelector('#toggleDarkMode') as HTMLElement
       darkModeBtn.addEventListener('click', () => {
-        const newTheme = setTheme(undefined, true)
+        let newTheme: string | undefined
+        try {
+          newTheme = setTheme(undefined, true)
+        } catch {
+          // astro-pure reads storage before applying; retain its cycle without storage.
+          const themes = ['system', 'dark', 'light']
+          const current = darkModeBtn.dataset.theme || 'system'
+          newTheme = themes[(themes.indexOf(current) + 1) % themes.length]
+          setTheme(newTheme, false)
+        }
         darkModeBtn.dataset.theme = newTheme
         showToast({ message: `Set theme to ${newTheme}` })
       })

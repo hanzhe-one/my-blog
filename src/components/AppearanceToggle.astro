@@ -1,0 +1,62 @@
+---
+import type { Lang } from '@/i18n/ui'
+
+const { lang = 'zh' } = Astro.props as { lang?: Lang }
+const en = lang === 'en'
+const paperLabel = en ? 'Switch to paper appearance' : '切换为纸感外观'
+const originalLabel = en ? 'Restore original appearance' : '恢复原版外观'
+const note = en
+  ? 'Claude-inspired approximation using system serif fonts, not official Claude fonts.'
+  : 'Claude 灵感的近似风格，使用系统宋体/衬线字体，并非 Claude 官方字体。'
+---
+
+<button
+  type='button'
+  data-appearance-toggle
+  data-paper-label={paperLabel}
+  data-original-label={originalLabel}
+  data-paper-text={en ? 'Paper' : '纸感'}
+  data-original-text={en ? 'Style' : '外观'}
+  aria-pressed='false'
+  aria-label={paperLabel}
+  aria-describedby='appearance-note'
+  title={paperLabel}
+>
+  <span data-appearance-label>{en ? 'Style' : '外观'}</span>
+</button>
+<span id='appearance-note' class='sr-only'>{note}</span>
+<script is:inline>
+  // Synchronize the accessible state as soon as the control is parsed.
+  document.querySelectorAll('[data-appearance-toggle]').forEach((button) => {
+    const paper = document.documentElement.dataset.appearance === 'paper'
+    button.setAttribute('aria-pressed', String(paper))
+    button.setAttribute(
+      'aria-label',
+      paper ? button.dataset.originalLabel : button.dataset.paperLabel
+    )
+    button.title = paper ? button.dataset.originalLabel : button.dataset.paperLabel
+    button.querySelector('[data-appearance-label]').textContent = paper
+      ? button.dataset.paperText
+      : button.dataset.originalText
+  })
+</script>
+<style>
+  button {
+    flex-shrink: 0;
+    min-height: 2.125rem;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.375rem;
+    font: inherit;
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+  button:hover {
+    background: hsl(var(--muted));
+    color: hsl(var(--primary));
+  }
+  button:focus-visible {
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 3px;
+  }
+</style>

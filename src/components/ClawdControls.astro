@@ -1,0 +1,95 @@
+---
+import type { Lang } from '@/i18n/ui'
+import motionScript from '@/lib/clawd-motion.js?raw'
+const { lang = 'zh' } = Astro.props as { lang?: Lang }
+const en = lang === 'en'
+---
+
+<aside
+  class="clawd-controls not-prose"
+  aria-label={en ? 'Clawd artwork and motion' : 'Clawd 美术与动效'}
+>
+  <button
+    type="button"
+    data-clawd-toggle
+    data-on-label={en
+      ? 'Clawd motion: on · pause'
+      : 'Clawd 动效：开 · 点击暂停'}
+    data-off-label={en
+      ? 'Clawd motion: off · play'
+      : 'Clawd 动效：关 · 点击播放'}
+    data-reduced-label={en
+      ? 'Clawd: still · reduced motion'
+      : 'Clawd：静态 · 跟随系统减少动态'}
+    aria-pressed="false">{en ? 'Clawd motion' : 'Clawd 动效'}</button
+  >
+  <button type="button" data-clawd-reset
+    >{en ? 'Reset sticker positions' : '表情位置复位'}</button
+  >
+  <details>
+    <summary>{en ? 'Artwork credits & licence' : '美术署名与许可'}</summary>
+    <p>
+      <a href="https://github.com/alwinecor/clawd-stickers"
+        >Clawd Stickers — alwinecor {en ? 'and contributors' : '及贡献者'}</a
+      >.
+      {en ? 'Artwork: ' : '美术素材：'}
+      <a href="/clawd/LICENSE-ART">CC BY-NC-SA 4.0</a>
+      · <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/"
+        >{en ? 'Licence terms' : '许可条款'}</a
+      >.
+      {
+        en
+          ? 'Upstream code and documentation use MIT; that licence does not cover artwork. GIFs are unchanged; static PNGs are first-frame extracts made with Pillow, shared under the same artwork licence. Clawd belongs to Anthropic. Unofficial fan artwork; no affiliation or endorsement. Commercial use needs separate permission.'
+          : '上游代码和文档使用 MIT，不涵盖美术素材。GIF 保持原样；静态 PNG 使用 Pillow 提取首帧，按相同美术许可共享。Clawd 角色归 Anthropic 所有。这是非官方粉丝创作，无合作或背书关系；商业使用须另行取得许可。'
+      }
+    </p>
+  </details>
+</aside>
+<script is:inline set:html={motionScript} />
+
+<style>
+  .clawd-controls {
+    display: none;
+  }
+  :global(html[data-appearance='paper']) .clawd-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem 1rem;
+    margin: 0 0 1.5rem;
+    font-family: system-ui, sans-serif;
+    font-size: 0.75rem;
+    color: hsl(var(--muted-foreground));
+  }
+  button {
+    min-height: 44px;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.5rem;
+    text-align: start;
+  }
+  button:disabled {
+    cursor: default;
+  }
+  summary {
+    cursor: pointer;
+    min-height: 44px;
+    align-content: center;
+  }
+  p {
+    max-width: 65ch;
+    line-height: 1.8;
+    margin-block: 0.5rem;
+    overflow-wrap: anywhere;
+  }
+  a {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  button:focus-visible,
+  summary:focus-visible,
+  a:focus-visible {
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 3px;
+  }
+</style>

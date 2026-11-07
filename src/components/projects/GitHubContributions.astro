@@ -1,95 +1,26 @@
 ---
-type Contribution = { date: string; count: number; level: 0 | 1 | 2 | 3 | 4 }
-type ApiResponse = {
-  total: { lastYear?: number } & Record<string, number>
-  contributions: Contribution[]
-}
+import { loadGitHubContributions, type ContributionData } from '@/lib/github-contributions'
 
 interface Props {
   username?: string
-  /** Caption shown next to the avatar — falls back to username */
   displayName?: string
+  lang?: 'zh' | 'en'
+  surface?: 'home' | 'projects'
 }
-
-const { username = 'hanzhe-one', displayName } = Astro.props
-
-let total = 0
-let contributions: Contribution[] = []
-
-// Fetch GitHub's contribution calendar directly (server-side) instead of
-// round-tripping through our own /api endpoint — self-fetching the endpoint
-// from inside an SSR function is unreliable on Vercel (loopback/network
-// restrictions), which left the grid empty on first paint. Uses the same
-// GITHUB_TOKEN, so private contributions are still included when present.
-const LEVEL_MAP: Record<string, 0 | 1 | 2 | 3 | 4> = {
-  NONE: 0,
-  FIRST_QUARTILE: 1,
-  SECOND_QUARTILE: 2,
-  THIRD_QUARTILE: 3,
-  FOURTH_QUARTILE: 4
+const { username = 'hanzhe-one', displayName, lang = 'zh', surface = 'projects' } = Astro.props
+let data: ContributionData | undefined
+try {
+  data = await loadGitHubContributions(username, {
+    token: import.meta.env.GITHUB_TOKEN || process.env.GITHUB_TOKEN
+  })
+} catch {
+  // Keep failure distinct from a real calendar containing zero contributions.
 }
-const GH_QUERY = `
-  query($login: String!) {
-    user(login: $login) {
-      contributionsCollection {
-        contributionCalendar {
-          totalContributions
-          weeks {
-            contributionDays {
-              date
-              contributionCount
-              contributionLevel
-            }
-          }
-        }
-      }
-    }
-  }
-`
-const ghToken = import.meta.env.GITHUB_TOKEN ?? process.env.GITHUB_TOKEN
-if (ghToken) {
-  try {
-    const ghRes = await fetch('https://api.github.com/graphql', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${ghToken}`,
-        'Content-Type': 'application/json',
-        'User-Agent': 'xiaozheblog.vercel.app'
-      },
-      body: JSON.stringify({ query: GH_QUERY, variables: { login: username } })
-    })
-    if (ghRes.ok) {
-      const payload = (await ghRes.json()) as {
-        data?: {
-          user?: {
-            contributionsCollection?: {
-              contributionCalendar?: {
-                totalContributions: number
-                weeks: { contributionDays: { date: string; contributionCount: number; contributionLevel: string }[] }[]
-              }
-            }
-          }
-        }
-      }
-      const cal = payload.data?.user?.contributionsCollection?.contributionCalendar
-      if (cal) {
-        total = cal.totalContributions
-        for (const week of cal.weeks) {
-          for (const day of week.contributionDays) {
-            contributions.push({
-              date: day.date,
-              count: day.contributionCount,
-              level: LEVEL_MAP[day.contributionLevel] ?? 0
-            })
-          }
-        }
-      }
-    }
-  } catch {
-    // network blip — render an empty grid
-  }
-}
-
+let contributions = data?.contributions ?? []
+type Contribution = ContributionData['contributions'][number]
+const unavailable = lang === 'en' ? 'Contribution data temporarily unavailable. Please retry or visit GitHub.' : '贡献数据暂时无法获取，请稍后重试或前往 GitHub 查看。'
+const publicNotice = lang === 'en' ? 'Public contribution data · may be delayed; private contributions may be excluded.' : '公开贡献数据 · 可能有延迟，可能不包含私有贡献。'
+const githubNotice = lang === 'en' ? 'Contribution calendar from GitHub.' : '贡献日历来自 GitHub。'
 // Drop any cells dated after today (the API sometimes overshoots the current
 // day, and the user wants the rightmost column to end on today — never future).
 const todayISO = new Date().toISOString().slice(0, 10)
@@ -131,15 +62,22 @@ const monthLabels = weeks.map((week, i) => {
 })
 
 const caption = displayName ?? username
-const formattedTotal = total.toLocaleString('en-US')
+const formattedTotal = data?.total.lastYear.toLocaleString('en-US')
 ---
 
-<figure class='gh-contrib not-prose my-4'>
+<figure class:list={['gh-contrib not-prose my-4', { 'gh-contrib-home': surface === 'home' }]} data-lang={lang}>
   <div
     class='gh-contrib-card relative overflow-hidden rounded-2xl border bg-background p-4 sm:p-5'
     data-username={username}
+    style={`--gh-weeks: ${weeks.length || 53}`}
+    data-unavailable={unavailable}
+    data-public-notice={publicNotice}
+    data-github-notice={githubNotice}
   >
-    <div class='gh-contrib-grid'>
+    <p class='gh-contrib-status text-xs text-muted-foreground mb-3' data-contrib-status role='status'>
+      {data ? (data.source === 'public' ? publicNotice : githubNotice) : unavailable}
+    </p>
+    <div class='gh-contrib-grid' hidden={!data}>
       <div class='gh-contrib-months' aria-hidden='true'>
         {monthLabels.map((m) => <span>{m}</span>)}
       </div>
@@ -187,7 +125,7 @@ const formattedTotal = total.toLocaleString('en-US')
       <div class='flex flex-col leading-tight'>
         <span class='text-sm font-semibold'>{caption}</span>
         <span class='text-xs text-muted-foreground' data-total-label>
-          {formattedTotal} contributions
+          {formattedTotal !== undefined ? `${formattedTotal} ${lang === 'en' ? 'contributions' : '次贡献'}` : (lang === 'en' ? 'Data unavailable' : '数据暂不可用')}
         </span>
       </div>
       <a
@@ -196,7 +134,7 @@ const formattedTotal = total.toLocaleString('en-US')
         target='_blank'
         rel='noreferrer'
         data-analytics-event='github_link_click'
-        data-analytics-surface='projects'
+        data-analytics-surface={surface}
         data-analytics-target='profile'
       >
         @{username}
@@ -264,6 +202,13 @@ const formattedTotal = total.toLocaleString('en-US')
      resolve against the figure's box. */
   .gh-contrib {
     position: relative;
+  }
+
+  .gh-contrib-grid[hidden] { display: none; }
+  .gh-contrib-home { margin: 0; width: 100%; }
+  .gh-contrib-home .gh-contrib-card {
+    border-radius: 0.75rem;
+    background: color-mix(in srgb, var(--color-muted-foreground, #659eb9) 4%, transparent);
   }
 
   /* Theme-aware palette: light mode uses the site teal-blue accent (#659EB9),
@@ -543,7 +488,7 @@ const formattedTotal = total.toLocaleString('en-US')
   }
 </style>
 
-<script is:inline define:vars={{ totalWeeks: weeks.length }}>
+<script is:inline>
   // Build an odometer driver against pre-rendered columns. options.padToFull
   // disables leading-zero hiding (used for the year column where we always
   // want all 4 digits visible).
@@ -583,7 +528,8 @@ const formattedTotal = total.toLocaleString('en-US')
     const noun = figure.querySelector('[data-noun]')
     if (!card || !cells || !tooltip || !countOdo || !dayOdo || !yearOdo || !monthLabel || !noun) continue
 
-    card.style.setProperty('--gh-weeks', String(totalWeeks))
+    if (figure.dataset.ghInitialized) continue
+    figure.dataset.ghInitialized = 'true'
 
     const setCount = makeOdometer(countOdo)
     const setDay = makeOdometer(dayOdo)
@@ -725,23 +671,27 @@ const formattedTotal = total.toLocaleString('en-US')
     try {
       const res = await fetch(
         `/api/github-contributions?username=${encodeURIComponent(username)}`,
-        { cache: 'no-store' }
+        { cache: 'no-store', signal: AbortSignal.timeout(11000) }
       )
-      if (!res.ok) return
+      if (!res.ok) throw new Error('Contribution data unavailable')
       data = await res.json()
     } catch {
+      const status = figure.querySelector('[data-contrib-status]')
+      if (status) status.textContent = figure.querySelector('.gh-cell[data-date]')
+        ? (figure.dataset.lang === 'en' ? 'Showing previously fetched data; refresh failed.' : '当前展示此前获取的数据，刷新暂时失败。')
+        : card.dataset.unavailable
       return
     }
 
     const today = new Date().toISOString().slice(0, 10)
     const contributions = (data.contributions || []).filter((c) => c.date <= today)
-    if (contributions.length === 0) return
+    if (contributions.length === 0 || !Number.isInteger(data.total?.lastYear)) return
+    const status = figure.querySelector('[data-contrib-status]')
+    if (status) status.textContent = data.source === 'public' ? card.dataset.publicNotice : card.dataset.githubNotice
+    figure.querySelector('.gh-contrib-grid')?.removeAttribute('hidden')
 
-    // Bail if the grid is already up to date (server-side fetch was fresh).
+    // Rebuild even when the last date matches: counts can change during the day.
     const baseLayer = figure.querySelector('.gh-contrib-base')
-    const lastInDom = baseLayer?.querySelector('.gh-cell[data-date]:last-of-type')
-    const lastInApi = contributions[contributions.length - 1].date
-    if (lastInDom && lastInDom.dataset.date === lastInApi) return
 
     // Build week buckets — mirror of the SSR logic in the frontmatter
     const leadingEmpty = new Date(contributions[0].date + 'T00:00:00Z').getUTCDay()
@@ -805,7 +755,7 @@ const formattedTotal = total.toLocaleString('en-US')
       )
     }
     const totalEl = figure.querySelector('[data-total-label]')
-    const total = data.total?.lastYear ?? 0
-    if (totalEl) totalEl.textContent = `${total.toLocaleString('en-US')} contributions`
+    const total = data.total.lastYear
+    if (totalEl) totalEl.textContent = `${total.toLocaleString('en-US')} ${figure.dataset.lang === 'en' ? 'contributions' : '次贡献'}`
   }
 </script>

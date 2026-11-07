@@ -1,18 +1,23 @@
 ---
 import PageLayout from '@/layouts/CommonPage.astro'
 import GitHubContributions from '@/components/projects/GitHubContributions.astro'
+import OpenSourceProjects from '@/components/projects/OpenSourceProjects.astro'
 import ProjectSection from '@/components/projects/ProjectSection.astro'
 
 const headings = [
+  { depth: 2, slug: 'open-source', text: 'Open source' },
   { depth: 2, slug: 'contributions', text: 'Contributions' },
   { depth: 2, slug: 'theme', text: 'Theme' }
 ]
 ---
 
 <PageLayout title='Projects' {headings} info={{ slug: '/projects', hideComment: true }}>
+  <h2 id='open-source'>Open source</h2>
+  <OpenSourceProjects lang='en' surface='projects' />
+
   <h2 id='contributions'>Contributions</h2>
   <p class='text-muted-foreground'>GitHub Activities</p>
-  <GitHubContributions username='hanzhe-one' />
+  <GitHubContributions username='hanzhe-one' lang='en' />
 
   <h2 id='theme'>Theme</h2>
   <ProjectSection
