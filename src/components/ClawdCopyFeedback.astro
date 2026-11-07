@@ -1,0 +1,60 @@
+---
+import type { Lang } from '@/i18n/ui'
+import Mascot from '@/components/Mascot.astro'
+
+interface Props {
+  lang?: Lang
+}
+const { lang = 'zh' } = Astro.props as { lang?: Lang }
+const label = lang === 'en' ? 'Code copied' : '代码已复制'
+---
+
+{/* Only appears after the site's own copy button really flips to .copied. */}
+<div
+  class="clawd-copy-feedback not-prose"
+  data-clawd-copy-feedback
+  aria-hidden="true"
+  hidden
+>
+  <Mascot scene="copied" lang={lang} focusable={false} />
+  <span class="clawd-copy-label">{label}</span>
+</div>
+
+<script>
+  import '@/lib/clawd-copy-feedback.js'
+</script>
+
+<style>
+  .clawd-copy-feedback {
+    display: none;
+  }
+  .clawd-copy-feedback[hidden] {
+    display: none !important;
+  }
+  :global(html[data-appearance='paper']) .clawd-copy-feedback {
+    position: fixed;
+    right: 1rem;
+    bottom: 1.25rem;
+    z-index: 60;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.7rem 0.25rem 0.15rem;
+    border: 1px solid hsl(var(--border));
+    border-radius: 999px;
+    background: hsl(var(--card) / 0.96);
+    box-shadow: 0 6px 20px hsl(var(--foreground) / 0.08);
+    pointer-events: none;
+  }
+  .clawd-copy-label {
+    font-size: 0.75rem;
+    color: hsl(var(--muted-foreground));
+    white-space: nowrap;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :global(html[data-appearance='paper']) .clawd-copy-feedback {
+      /* The sticker stays static via the motion runtime; no extra animation. */
+      animation: none !important;
+    }
+  }
+</style>

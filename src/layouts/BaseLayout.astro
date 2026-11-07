@@ -9,6 +9,7 @@ import AnalyticsEvents from '@/components/AnalyticsEvents.astro'
 import BaseHead from '@/components/BaseHead.astro'
 import ViewCounter from '@/components/comment/ViewCounter.astro'
 import ClawdControls from '@/components/ClawdControls.astro'
+import ClawdCopyFeedback from '@/components/ClawdCopyFeedback.astro'
 import Header from '@/components/Header.astro'
 import ThemeProvider from '@/components/ThemeProvider.astro'
 import config from '@/site-config'
@@ -63,6 +64,7 @@ const htmlLang = lang === 'en' ? 'en' : config.locale.lang
       {chrome && <Header lang={lang} />}
       <slot />
       {chrome && <ClawdControls lang={lang} />}
+      {chrome && <ClawdCopyFeedback lang={lang} />}
       {chrome && <Footer />}
     </div>
     <Analytics />

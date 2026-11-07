@@ -1,5 +1,7 @@
 // Independent of appearance and light/dark preferences. No image URLs are fetched
-// until a paper mascot is present. Reduced motion always wins over saved consent.
+// until a visible paper mascot exists: hidden states (search idle/loading/empty/
+// error, copy feedback) stay unloaded until their container is revealed.
+// Reduced motion always wins over saved consent.
 ;(() => {
   if (window.__joyeMascotBound) return
   window.__joyeMascotBound = true
@@ -14,15 +16,20 @@
     }
   }
   preference = read()
+  // A state-driven sticker lives inside a [hidden] wrapper; never load while hidden.
+  const isHidden = (image) =>
+    typeof image.closest === 'function' &&
+    image.closest('[hidden], [data-clawd-inactive]') !== null
   function sync() {
     const paper = document.documentElement.dataset.appearance === 'paper'
     const moving = preference === 'on' && !media.matches
     document.querySelectorAll('[data-clawd-image]').forEach((image) => {
-      const src = paper
-        ? moving
-          ? image.dataset.gif
-          : image.dataset.still
-        : null
+      const src =
+        paper && !isHidden(image)
+          ? moving
+            ? image.dataset.gif
+            : image.dataset.still
+          : null
       if (src === null) image.removeAttribute('src')
       else if (image.getAttribute('src') !== src) image.setAttribute('src', src)
     })
@@ -52,7 +59,8 @@
     observer.disconnect()
     observer.observe(document.documentElement, {
       attributes: true,
-      attributeFilter: ['data-appearance'],
+      attributeFilter: ['data-appearance', 'hidden', 'data-clawd-inactive'],
+      subtree: true,
     })
     sync()
   }

@@ -11,6 +11,7 @@ function setup({
   reduced = false,
   stored = null as string | null,
   blocked = false,
+  hidden = false,
 } = {}) {
   const events = new Map<string, (event?: any) => void>()
   const windowEvents = new Map<string, (event?: any) => void>()
@@ -20,6 +21,9 @@ function setup({
     getAttribute: (key: string) => attrs.get(key),
     setAttribute: (key: string, value: string) => attrs.set(key, value),
     removeAttribute: (key: string) => attrs.delete(key),
+    // A hidden wrapper is the only ancestor a state-driven sticker can have.
+    closest: (selector: string) =>
+      hidden && selector.includes('[hidden]') ? { hidden: true } : null,
   }
   class Element {
     closest() {
@@ -34,6 +38,7 @@ function setup({
   })
   let mediaChange = () => {}
   let mutation = () => {}
+  let observerOptions: any
   const media = {
     matches: reduced,
     addEventListener: (_: string, fn: () => void) => {
@@ -56,7 +61,9 @@ function setup({
         mutation = fn
       }
       disconnect() {}
-      observe() {}
+      observe(_: unknown, options?: any) {
+        observerOptions = options
+      }
     },
     window: {
       matchMedia: () => media,
@@ -83,6 +90,11 @@ function setup({
     events,
     windowEvents,
     saved: () => stored,
+    observerOptions: () => observerOptions,
+    hide: (value: boolean) => {
+      hidden = value
+      mutation()
+    },
     click: () => events.get('click')!({ target: button }),
     appearance: (value: string) => {
       root.dataset.appearance = value
@@ -143,6 +155,32 @@ describe('Clawd paper-only motion runtime', () => {
     expect(app.events.get('click')).toBe(listener)
     app.events.get('astro:page-load')!()
     expect(app.attrs.get('src')).toBe('/clawd/hello.png')
+  })
+  test('sticker inside a hidden state wrapper is never fetched', () => {
+    const app = setup({ hidden: true })
+    expect(app.attrs.has('src')).toBe(false)
+    app.hide(false)
+    expect(app.attrs.get('src')).toBe('/clawd/hello.gif')
+    app.hide(true)
+    expect(app.attrs.has('src')).toBe(false)
+  })
+  test('hidden state respects pause and reduced motion', () => {
+    const app = setup({ hidden: true, stored: 'off' })
+    expect(app.attrs.has('src')).toBe(false)
+    app.hide(false)
+    expect(app.attrs.get('src')).toBe('/clawd/hello.png')
+    app.hide(true)
+    app.reduce(true)
+    app.hide(false)
+    expect(app.attrs.get('src')).toBe('/clawd/hello.png')
+  })
+  test('state changes are observed on the whole subtree', () => {
+    const app = setup()
+    const options = app.observerOptions()
+    expect(options.subtree).toBe(true)
+    expect(options.attributes).toBe(true)
+    expect(options.attributeFilter).toContain('hidden')
+    expect(options.attributeFilter).toContain('data-appearance')
   })
   test('unrelated cross-tab preferences are ignored; motion events resync', () => {
     const app = setup()

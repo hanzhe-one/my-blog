@@ -1,18 +1,56 @@
-{/* 站内搜索：走 /api/search.json（terminal 的 search 命令同款后端），dev/prod 行为一致 */}
+---
+// 站内搜索：走 /api/search.json（terminal 的 search 命令同款后端），dev/prod 行为一致
+import type { Lang } from '@/i18n/ui'
+import Mascot from '@/components/Mascot.astro'
+
+interface Props {
+  lang?: Lang
+}
+const { lang = 'zh' } = Astro.props
+---
+
 <joye-site-search>
-  <aside class='form my-4'>
-    <div id='local-site-search' class='local-search'>
+  <aside class="form my-4">
+    <div id="local-site-search" class="local-search">
       <input
-        id='local-search-input'
-        class='local-search-input'
-        type='search'
-        placeholder='Search posts and notes...'
-        autocomplete='off'
-        spellcheck='false'
-        aria-label='Search posts and notes'
+        id="local-search-input"
+        class="local-search-input"
+        type="search"
+        placeholder="Search posts and notes..."
+        autocomplete="off"
+        spellcheck="false"
+        aria-label="Search posts and notes"
       />
-      <div id='local-search-status' class='local-search-status' aria-live='polite'></div>
-      <ol id='local-search-results' class='local-search-results'></ol>
+      <div class="local-search-feedback">
+        <div
+          id="local-search-status"
+          class="local-search-status"
+          aria-live="polite"
+        >
+        </div>
+        {
+          /* Only one search sticker is un-hidden at a time; the motion runtime
+            skips hidden ancestors, so hidden scenes never download. */
+        }
+        <div class="local-search-mascot" data-search-mascot aria-hidden="true">
+          <div data-search-scene="idle" hidden>
+            <Mascot scene="search-idle" lang={lang} />
+          </div>
+          <div data-search-scene="thinking" hidden>
+            <Mascot scene="search-thinking" lang={lang} />
+          </div>
+          <div data-search-scene="empty" hidden>
+            <Mascot scene="search-empty" lang={lang} />
+          </div>
+          <div data-search-scene="error" hidden>
+            <Mascot scene="search-error" lang={lang} />
+          </div>
+          <div data-search-scene="success" hidden>
+            <Mascot scene="search-success" lang={lang} />
+          </div>
+        </div>
+      </div>
+      <ol id="local-search-results" class="local-search-results"></ol>
     </div>
   </aside>
 </joye-site-search>
@@ -28,6 +66,8 @@
     excerpt: string
   }
 
+  type SearchScene = 'idle' | 'thinking' | 'empty' | 'error' | 'success'
+
   class JoyeSiteSearch extends HTMLElement {
     connectedCallback() {
       if (this.dataset.ready === 'true') return
@@ -35,11 +75,39 @@
 
       const input = this.querySelector<HTMLInputElement>('#local-search-input')
       const status = this.querySelector<HTMLElement>('#local-search-status')
-      const results = this.querySelector<HTMLOListElement>('#local-search-results')
+      const results = this.querySelector<HTMLOListElement>(
+        '#local-search-results',
+      )
       if (!input || !status || !results) return
 
+      const scenes = new Map<string, HTMLElement>()
+      this.querySelectorAll<HTMLElement>('[data-search-scene]').forEach(
+        (element) => {
+          const name = element.dataset.searchScene
+          if (name) scenes.set(name, element)
+        },
+      )
+
       let timer: ReturnType<typeof setTimeout> | undefined
+      let successTimer: ReturnType<typeof setTimeout> | undefined
       let activeRequest: AbortController | undefined
+
+      const setScene = (scene: SearchScene | null) => {
+        if (successTimer) clearTimeout(successTimer)
+        scenes.forEach((element, name) => {
+          element.hidden = name !== scene
+        })
+      }
+
+      const showSuccess = () => {
+        setScene('success')
+        successTimer = setTimeout(() => {
+          successTimer = undefined
+          // Only retire the sticker; the result list stays.
+          const success = scenes.get('success')
+          if (success) success.hidden = true
+        }, 2400)
+      }
 
       const renderResults = (items: LocalSearchResult[]) => {
         results.replaceChildren(...items.map((item) => createResultItem(item)))
@@ -52,35 +120,57 @@
         if (query.length < 2) {
           status.textContent = ''
           results.replaceChildren()
+          setScene(
+            query === '' && document.activeElement === input ? 'idle' : null,
+          )
           return
         }
 
         activeRequest = new AbortController()
+        const request = activeRequest
         status.textContent = 'Searching...'
+        setScene('thinking')
 
         try {
           const lang = window.location.pathname.startsWith('/en') ? 'en' : 'zh'
           const response = await fetch(
             `/api/search.json?q=${encodeURIComponent(query)}&limit=10&lang=${lang}`,
-            { signal: activeRequest.signal }
+            { signal: request.signal },
           )
           if (!response.ok) throw new Error(`HTTP ${response.status}`)
-          const payload = (await response.json()) as { results: LocalSearchResult[] }
+          const payload = (await response.json()) as {
+            results: LocalSearchResult[]
+          }
+          if (request.signal.aborted) return
           renderResults(payload.results)
-          status.textContent =
-            payload.results.length === 0
-              ? 'No results.'
-              : `${payload.results.length} result${payload.results.length === 1 ? '' : 's'}`
+          if (payload.results.length === 0) {
+            status.textContent = 'No results.'
+            setScene('empty')
+          } else {
+            status.textContent = `${payload.results.length} result${payload.results.length === 1 ? '' : 's'}`
+            showSuccess()
+          }
         } catch (error) {
-          if (error instanceof DOMException && error.name === 'AbortError') return
+          if (request.signal.aborted) return
+          if (error instanceof DOMException && error.name === 'AbortError')
+            return
           status.textContent = 'Search failed.'
           results.replaceChildren()
+          setScene('error')
         }
       }
 
       input.addEventListener('input', () => {
         if (timer) clearTimeout(timer)
         timer = setTimeout(runSearch, 180)
+      })
+      input.addEventListener('focus', () => {
+        if (input.value.trim() === '' && !successTimer) setScene('idle')
+      })
+      input.addEventListener('blur', () => {
+        const idle = scenes.get('idle')
+        if (idle && !idle.hidden && input.value.trim() === '')
+          idle.hidden = true
       })
     }
   }
@@ -96,7 +186,10 @@
 
     const meta = document.createElement('div')
     meta.className = 'local-search-meta'
-    meta.textContent = [item.collection === 'blog' ? 'Blog' : 'Notes', item.date]
+    meta.textContent = [
+      item.collection === 'blog' ? 'Blog' : 'Notes',
+      item.date,
+    ]
       .filter(Boolean)
       .join(' · ')
 
@@ -136,10 +229,25 @@
     border-color: hsl(var(--foreground));
   }
 
-  .local-search-status {
+  .local-search-feedback {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
     min-height: 1.2rem;
+  }
+
+  .local-search-status {
+    flex: 1;
+    min-width: 0;
     color: hsl(var(--muted-foreground));
     font-size: 0.9rem;
+  }
+
+  .local-search-mascot {
+    flex: none;
+    display: flex;
+    justify-content: flex-end;
   }
 
   .local-search-results {

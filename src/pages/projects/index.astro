@@ -1,5 +1,6 @@
 ---
 import PageLayout from '@/layouts/CommonPage.astro'
+import Mascot from '@/components/Mascot.astro'
 import GitHubContributions from '@/components/projects/GitHubContributions.astro'
 import OpenSourceProjects from '@/components/projects/OpenSourceProjects.astro'
 import ProjectSection from '@/components/projects/ProjectSection.astro'
@@ -17,6 +18,7 @@ const headings = [
 
   <h2 id='contributions'>Contributions</h2>
   <p class='text-muted-foreground'>GitHub Activities</p>
+  <Mascot scene='projects' />
   <GitHubContributions username='hanzhe-one' />
 
   <h2 id='theme'>Theme</h2>

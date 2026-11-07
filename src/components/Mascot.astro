@@ -1,33 +1,41 @@
 ---
 import type { Lang } from '@/i18n/ui'
+import {
+  clawdAssetFor,
+  clawdSceneLabels,
+  eagerClawdScenes,
+  type ClawdScene,
+} from '@/lib/clawd-scenes'
 
 interface Props {
-  scene: 'hello' | 'coffee' | 'notfound' | 'bye'
+  scene: ClawdScene
   lang?: Lang
+  class?: string
+  /** Decorative copies (e.g. the copy bubble) stay out of the tab order. */
+  focusable?: boolean
 }
-const { scene, lang = 'zh' } = Astro.props
-const labels = {
-  hello: ['Clawd 挥手欢迎你', 'Clawd waves hello'],
-  coffee: ['Clawd 喝杯咖啡，继续开源实践', 'Clawd takes a coffee break'],
-  notfound: ['Clawd 也没找到这个页面', 'Clawd cannot find this page either'],
-  bye: ['Clawd 挥手道别，谢谢阅读', 'Clawd waves goodbye — thanks for reading'],
-}
+const { scene, lang = 'zh', class: className, focusable = true } = Astro.props
+const asset = clawdAssetFor(scene)
+const label = clawdSceneLabels[scene][lang === 'en' ? 1 : 0]
 ---
 
-<div class:list={['clawd-mascot', `clawd-${scene}`, 'not-prose']}>
+<div
+  class:list={['clawd-mascot', `clawd-${scene}`, 'not-prose', className]}
+  data-clawd-scene={scene}
+>
   <img
     data-clawd-image
-    tabindex="0"
+    tabindex={focusable ? '0' : '-1'}
     draggable="false"
     title={lang === 'en'
       ? 'Drag to move · double-click or press Escape to reset · arrow keys to move'
       : '按住拖动 · 双击或按 Esc 复位 · 方向键移动'}
-    data-gif={`/clawd/${scene}.gif`}
-    data-still={`/clawd/${scene}.png`}
-    alt={labels[scene][lang === 'en' ? 1 : 0]}
+    data-gif={`/clawd/${asset}.gif`}
+    data-still={`/clawd/${asset}.png`}
+    alt={label}
     width="288"
     height="288"
-    loading={scene === 'hello' || scene === 'notfound' ? 'eager' : 'lazy'}
+    loading={eagerClawdScenes.includes(scene) ? 'eager' : 'lazy'}
     decoding="async"
   />
 </div>
@@ -89,5 +97,42 @@ const labels = {
   .clawd-notfound img {
     width: 10rem;
     height: 10rem;
+  }
+  /* Search feedback: one small sticker next to the status line. */
+  .clawd-search-idle img,
+  .clawd-search-thinking img,
+  .clawd-search-empty img,
+  .clawd-search-error img,
+  .clawd-search-success img {
+    width: 4.5rem;
+    height: 4.5rem;
+  }
+  :global(html[data-appearance='paper']) .clawd-search-idle,
+  :global(html[data-appearance='paper']) .clawd-search-thinking,
+  :global(html[data-appearance='paper']) .clawd-search-empty,
+  :global(html[data-appearance='paper']) .clawd-search-error,
+  :global(html[data-appearance='paper']) .clawd-search-success {
+    justify-content: flex-start;
+    margin: 0;
+  }
+  /* Resident scenes on the about, projects and blog list pages. */
+  .clawd-about img,
+  .clawd-projects img,
+  .clawd-blog-list img {
+    width: 4.5rem;
+    height: 4.5rem;
+  }
+  :global(html[data-appearance='paper']) .clawd-about,
+  :global(html[data-appearance='paper']) .clawd-projects,
+  :global(html[data-appearance='paper']) .clawd-blog-list {
+    justify-content: flex-end;
+    margin: 0;
+  }
+  .clawd-copied img {
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+  :global(html[data-appearance='paper']) .clawd-copied {
+    margin: 0;
   }
 </style>

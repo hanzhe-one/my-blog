@@ -1,6 +1,7 @@
 ---
 import { Collapse, Timeline } from 'astro-pure/user'
 import PageLayout from '@/layouts/CommonPage.astro'
+import Mascot from '@/components/Mascot.astro'
 
 const headings = [
   { depth: 2, slug: 'hobbies', text: 'Hobbies' },
@@ -12,6 +13,7 @@ const headings = [
 ---
 
 <PageLayout title='About' {headings} info='/about'>
+  <Mascot scene='about' />
   <p>19岁计科女大</p>
   <p>
     我是**小喆**，一个出生于12月8日，今年19岁的计算机科学专业学生，目前就读于山东省某大学。

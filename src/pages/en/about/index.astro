@@ -1,6 +1,7 @@
 ---
 import { Button, Collapse, Spoiler, Timeline } from 'astro-pure/user'
 import PageLayout from '@/layouts/CommonPage.astro'
+import Mascot from '@/components/Mascot.astro'
 import Substats from '@/components/about/Substats.astro'
 import ToolSection from '@/components/about/ToolSection.astro'
 import pencilIcon from '@/assets/tools/pencil.png'
@@ -16,6 +17,7 @@ const headings = [
 ---
 
 <PageLayout title='About' {headings} info='/about'>
+  <Mascot scene='about' lang='en' />
   <p>Developer</p>
   <p>
     I'm a 19-year-old computer science student in China. Outside of coding I spend time

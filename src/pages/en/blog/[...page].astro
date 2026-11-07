@@ -5,6 +5,7 @@ import { getCollection, type CollectionEntry } from 'astro:content'
 import { Paginator } from 'astro-pure/components/pages'
 import { Button, Icon } from 'astro-pure/user'
 import PageLayout from '@/layouts/BaseLayout.astro'
+import Mascot from '@/components/Mascot.astro'
 import PostPreviewEn from '@/components/blog/PostPreviewEn.astro'
 import config from '@/site-config'
 
@@ -50,6 +51,7 @@ const paginationProps = {
   <main class='mt-6 lg:mt-10'>
     <div id='content-header' class='animate'>
       <h1 class='mb-6 mt-6 text-3xl font-medium sm:mt-10'>Blog</h1>
+      <Mascot scene='blog-list' lang='en' />
     </div>
     {
       page.data.length === 0 ? (
