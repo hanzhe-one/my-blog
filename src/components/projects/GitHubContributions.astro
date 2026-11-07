@@ -42,7 +42,7 @@ const formattedTotal = data?.total.lastYear.toLocaleString('en-US')
     data-public-notice={publicNotice}
     data-github-notice={githubNotice}
   >
-    <p class='gh-contrib-status text-xs text-muted-foreground mb-3' data-contrib-status role='status'>
+    <p class='sr-only' data-contrib-status role='status'>
       {data ? (data.source === 'public' ? publicNotice : githubNotice) : unavailable}
     </p>
     <div class='gh-contrib-grid' hidden={!data}>
