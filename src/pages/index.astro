@@ -9,6 +9,7 @@ import { Button, Icon, Label } from 'astro-pure/user'
 import { getBlogCollection, sortMDByDate } from 'astro-pure/server'
 import PageLayout from '@/layouts/BaseLayout.astro'
 import OpenSourceProjects from '@/components/projects/OpenSourceProjects.astro'
+import ProjectDisclosure from '@/components/home/ProjectDisclosure.astro'
 import Section from '@/components/home/Section.astro'
 import config from '@/site-config'
 
@@ -59,13 +60,15 @@ const allPostsByDate = sortMDByDate(allPosts).slice(0, MAX_POSTS)
       class="animate relative z-0 flex w-full min-w-0 max-w-full flex-col gap-y-10 md:w-4/5 lg:w-5/6"
     >
       <Section title="开源实践">
-        <OpenSourceProjects />
-        <Button
-          title="所有项目"
-          class="w-fit self-end"
-          href="/projects"
-          style="ahead"
-        />
+        <ProjectDisclosure>
+          <OpenSourceProjects />
+          <Button
+            title="所有项目"
+            class="w-fit self-end"
+            href="/projects"
+            style="ahead"
+          />
+        </ProjectDisclosure>
       </Section>
       {
         allPostsByDate.length > 0 && (

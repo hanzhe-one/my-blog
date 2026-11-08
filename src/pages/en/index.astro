@@ -8,6 +8,7 @@ import { Quote } from 'astro-pure/advanced'
 import { Button, Icon, Label } from 'astro-pure/user'
 import PageLayout from '@/layouts/BaseLayout.astro'
 import OpenSourceProjects from '@/components/projects/OpenSourceProjects.astro'
+import ProjectDisclosure from '@/components/home/ProjectDisclosure.astro'
 import Section from '@/components/home/Section.astro'
 import PostPreviewEn from '@/components/blog/PostPreviewEn.astro'
 import config from '@/site-config'
@@ -65,13 +66,15 @@ const allPostsByDate = (await getCollection('blogEn'))
       class="animate relative z-0 flex w-full min-w-0 max-w-full flex-col gap-y-10 md:w-4/5 lg:w-5/6"
     >
       <Section title="Open source">
-        <OpenSourceProjects lang="en" />
-        <Button
-          title="All projects"
-          class="w-fit self-end"
-          href="/en/projects"
-          style="ahead"
-        />
+        <ProjectDisclosure lang="en">
+          <OpenSourceProjects lang="en" />
+          <Button
+            title="All projects"
+            class="w-fit self-end"
+            href="/en/projects"
+            style="ahead"
+          />
+        </ProjectDisclosure>
       </Section>
       {
         allPostsByDate.length > 0 && (
