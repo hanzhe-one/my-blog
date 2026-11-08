@@ -1,0 +1,40 @@
+---
+import Mascot from '@/components/Mascot.astro'
+
+interface Props {
+  lang?: 'zh' | 'en'
+}
+const { lang = 'zh' } = Astro.props
+---
+
+<div class="contribution-scene">
+  <Mascot scene="lgtm" lang={lang} />
+  <div class="contribution-calendar"><slot /></div>
+</div>
+
+<style>
+  /* Original stays a transparent wrapper: no sticker column or new spacing. */
+  .contribution-scene {
+    display: contents;
+  }
+  .contribution-calendar {
+    display: contents;
+  }
+  :global(html[data-appearance='paper']) .contribution-calendar {
+    display: block;
+    min-width: 0;
+  }
+  :global(html[data-appearance='paper']) .contribution-scene {
+    display: grid;
+    grid-template-columns: 1fr;
+    min-width: 0;
+  }
+  /* On phones LGTM sits upper-left, leaving all 53 weeks the full width. */
+  @media (min-width: 768px) {
+    :global(html[data-appearance='paper']) .contribution-scene {
+      grid-template-columns: 4rem minmax(0, 1fr);
+      align-items: center;
+      column-gap: 0.5rem;
+    }
+  }
+</style>

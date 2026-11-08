@@ -1,6 +1,7 @@
 ---
 import PageLayout from '@/layouts/CommonPage.astro'
 import Mascot from '@/components/Mascot.astro'
+import ContributionScene from '@/components/projects/ContributionScene.astro'
 import GitHubContributions from '@/components/projects/GitHubContributions.astro'
 import OpenSourceProjects from '@/components/projects/OpenSourceProjects.astro'
 import ProjectSection from '@/components/projects/ProjectSection.astro'
@@ -14,12 +15,15 @@ const headings = [
 
 <PageLayout title='Projects' {headings} info={{ slug: '/projects', hideComment: true }}>
   <h2 id='open-source'>Open source</h2>
+  <Mascot scene='works' lang='en' />
   <OpenSourceProjects lang='en' surface='projects' />
 
   <h2 id='contributions'>Contributions</h2>
   <p class='text-muted-foreground'>GitHub Activities</p>
   <Mascot scene='projects' lang='en' />
-  <GitHubContributions username='hanzhe-one' lang='en' />
+  <ContributionScene lang='en'>
+    <GitHubContributions username='hanzhe-one' lang='en' />
+  </ContributionScene>
 
   <h2 id='theme'>Theme</h2>
   <ProjectSection

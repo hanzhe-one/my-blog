@@ -1,4 +1,6 @@
 ---
+import Mascot from '@/components/Mascot.astro'
+
 interface Props {
   lang?: 'zh' | 'en'
 }
@@ -8,6 +10,7 @@ const id = `project-glass-${lang}`
 ---
 
 <div class="project-glass">
+  <Mascot scene="coffee" lang={lang} />
   <button
     class="project-preview"
     type="button"
@@ -96,6 +99,7 @@ const id = `project-glass-${lang}`
 
 <style>
   .project-glass {
+    position: relative;
     width: 100%;
     min-width: 0;
   }

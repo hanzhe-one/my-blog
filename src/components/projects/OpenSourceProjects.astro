@@ -5,13 +5,14 @@ import { openSourceProjects } from '@/data/open-source'
 interface Props {
   lang?: 'zh' | 'en'
   surface?: 'home' | 'projects'
+  showCoffee?: boolean
 }
-const { lang = 'zh', surface = 'home' } = Astro.props
+const { lang = 'zh', surface = 'home', showCoffee = true } = Astro.props
 const en = lang === 'en'
 ---
 
 <div class="open-source-projects not-prose">
-  <Mascot scene="coffee" lang={lang} />
+  {showCoffee && <Mascot scene="coffee" lang={lang} />}
   {
     openSourceProjects.map((project) => (
       <article class="open-source-card">

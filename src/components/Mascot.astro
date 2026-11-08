@@ -128,6 +128,22 @@ const label = clawdSceneLabels[scene][lang === 'en' ? 1 : 0]
     justify-content: flex-end;
     margin: 0;
   }
+  /* New resident stickers share the same drag and motion runtime. */
+  .clawd-ultrathink img,
+  .clawd-works img {
+    width: 4.5rem;
+    height: 4.5rem;
+  }
+  .clawd-lgtm img {
+    width: 4rem;
+    height: 4rem;
+  }
+  :global(html[data-appearance='paper']) .clawd-ultrathink,
+  :global(html[data-appearance='paper']) .clawd-works,
+  :global(html[data-appearance='paper']) .clawd-lgtm {
+    justify-content: flex-start;
+    margin: 0;
+  }
   .clawd-copied img {
     width: 3.5rem;
     height: 3.5rem;

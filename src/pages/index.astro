@@ -61,7 +61,7 @@ const allPostsByDate = sortMDByDate(allPosts).slice(0, MAX_POSTS)
     >
       <Section title="开源实践">
         <ProjectDisclosure>
-          <OpenSourceProjects />
+          <OpenSourceProjects showCoffee={false} />
           <Button
             title="所有项目"
             class="w-fit self-end"
@@ -73,6 +73,7 @@ const allPostsByDate = sortMDByDate(allPosts).slice(0, MAX_POSTS)
       {
         allPostsByDate.length > 0 && (
           <Section title="Blog">
+            <Mascot slot="mascot" scene="ultrathink" />
             <ul class="flex flex-col gap-y-1.5 sm:gap-y-2">
               {allPostsByDate.map((p) => (
                 <li class="flex flex-col gap-x-2 sm:flex-row">

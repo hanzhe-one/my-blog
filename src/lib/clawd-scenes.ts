@@ -15,6 +15,9 @@ export const clawdSceneAssets = {
   projects: 'subagents',
   'blog-list': 'plan',
   copied: 'passed',
+  ultrathink: 'ultrathink',
+  works: 'works',
+  lgtm: 'lgtm',
 } as const
 
 export type ClawdScene = keyof typeof clawdSceneAssets
@@ -51,6 +54,12 @@ export const clawdSceneLabels: Record<ClawdScene, [string, string]> = {
     'Clawd plans which post to read first',
   ],
   copied: ['代码已复制到剪贴板', 'Code copied to the clipboard'],
+  ultrathink: ['Clawd 在文章旁深入思考', 'Clawd thinks deeply beside the posts'],
+  works: ['Clawd 在开源项目旁埋头工作', 'Clawd works beside the open-source projects'],
+  lgtm: [
+    'Clawd 为持续贡献点赞（不代表 PR 评审状态）',
+    'Clawd cheers on steady contributions (not a PR review status)',
+  ],
 }
 
 // Scenes that are visible as soon as the page paints in paper mode.
