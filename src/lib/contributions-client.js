@@ -318,7 +318,7 @@ async function refreshGrid(figure) {
   const totalEl = figure.querySelector('[data-total-label]')
   const total = data.total.lastYear
   if (totalEl) {
-    totalEl.textContent = `${total.toLocaleString('en-US')} ${figure.dataset.lang === 'en' ? 'contributions' : '次贡献'}`
+    totalEl.textContent = `${total.toLocaleString('en-US')} contributions`
   }
 }
 

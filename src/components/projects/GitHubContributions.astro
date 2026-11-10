@@ -93,7 +93,7 @@ const formattedTotal = data?.total.lastYear.toLocaleString('en-US')
       <div class='flex flex-col leading-tight'>
         <span class='text-sm font-semibold'>{caption}</span>
         <span class='text-xs text-muted-foreground' data-total-label>
-          {formattedTotal !== undefined ? `${formattedTotal} ${lang === 'en' ? 'contributions' : '次贡献'}` : (lang === 'en' ? 'Data unavailable' : '数据暂不可用')}
+          {formattedTotal !== undefined ? `${formattedTotal} contributions` : (lang === 'en' ? 'Data unavailable' : '数据暂不可用')}
         </span>
       </div>
       <a
